@@ -1,10 +1,10 @@
-package com.example.CurrencyExchenge;
+package com.example.CurrencyExchange;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CurrencyExchengeApplicationTests {
+class CurrencyExchangeApplicationTests {
 
 	@Test
 	void contextLoads() {

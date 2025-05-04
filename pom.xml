@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>CurrencyExchenge</artifactId>
+	<artifactId>CurrencyExchange</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>CurrencyExchenge</name>
-	<description>Exchange currency in cashbox</description>
+	<name>CurrencyExchange</name>
+	<description>Exchange currency in cash register</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -1,4 +1,4 @@
-package com.example.CurrencyExchenge.entities;
+package com.example.CurrencyExchange.entities;
 
 
 import jakarta.persistence.*;
