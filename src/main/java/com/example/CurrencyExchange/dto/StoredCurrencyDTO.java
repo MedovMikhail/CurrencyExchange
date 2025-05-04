@@ -15,5 +15,5 @@ public class StoredCurrencyDTO {
     private UUID id;
     private BigDecimal count;
     private UUID currencyId;
-    private UUID cashRegister;
+    private UUID cashRegisterId;
 }
