@@ -18,7 +18,7 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_role_generator")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String role;
 
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "role")
