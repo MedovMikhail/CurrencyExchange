@@ -24,7 +24,7 @@ public class CurrencyController {
         return currencyService.getCurrency(id);
     }
 
-    @GetMapping
+    @GetMapping("/code")
     public CurrencyDTO getCurrencyByCode(@RequestParam String code) {
         return currencyService.getCurrency(code);
     }
