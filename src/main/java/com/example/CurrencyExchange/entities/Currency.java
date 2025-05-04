@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -15,8 +14,9 @@ import java.util.UUID;
 public class Currency {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @SequenceGenerator(name = "currency_generator", sequenceName = "currency_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "currency_generator")
+    private Long id;
 
     @Column(nullable = false)
     private String name;

@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -16,8 +15,9 @@ import java.util.UUID;
 public class StoredCurrency {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @SequenceGenerator(name = "stored_currency_generator", sequenceName = "stored_currency_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "stored_currency_generator")
+    private Long id;
 
     @Column(nullable = false)
     private BigDecimal count;

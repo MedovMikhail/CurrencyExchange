@@ -6,20 +6,19 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeCurrencyDTO {
 
-    private UUID id;
+    private Long id;
     private BigDecimal countBaseCash;
     private BigDecimal countTargetCash;
     private BigDecimal exchangeRate;
     private ZonedDateTime dateOfExchange;
-    private UUID baseCurrencyId;
-    private UUID targetCurrencyId;
-    private UUID cashRegisterId;
-    private UUID userId;
+    private Long baseCurrencyId;
+    private Long targetCurrencyId;
+    private Long cashRegisterId;
+    private Long userId;
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -16,8 +15,9 @@ import java.util.UUID;
 public class ExchangeCurrency {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @SequenceGenerator(name = "exchange_currency_generator", sequenceName = "exchange_currency_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exchange_currency_generator")
+    private Long id;
 
     @Column(nullable = false)
     private BigDecimal countBaseCash;

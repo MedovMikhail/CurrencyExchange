@@ -5,15 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StoredCurrencyDTO {
 
-    private UUID id;
+    private Long id;
     private BigDecimal count;
-    private UUID currencyId;
-    private UUID cashRegisterId;
+    private Long currencyId;
+    private Long cashRegisterId;
 }
