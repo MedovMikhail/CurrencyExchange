@@ -9,6 +9,7 @@ public class CashRegisterMapper implements Mapper<CashRegister, CashRegisterDTO>
 
     @Override
     public CashRegister fromDTOToEntity(CashRegisterDTO from) {
+        if (from == null) return null;
         CashRegister to = new CashRegister();
         to.setId(from.getId());
         to.setAddress(from.getAddress());
@@ -17,6 +18,7 @@ public class CashRegisterMapper implements Mapper<CashRegister, CashRegisterDTO>
 
     @Override
     public CashRegisterDTO fromEntityToDTO(CashRegister from) {
+        if (from == null) return null;
         CashRegisterDTO to = new CashRegisterDTO();
         to.setId(from.getId());
         to.setAddress(from.getAddress());

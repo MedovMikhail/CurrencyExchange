@@ -12,6 +12,7 @@ public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, Exchange
 
     @Override
     public ExchangeCurrency fromDTOToEntity(ExchangeCurrencyDTO from) {
+        if (from == null) return null;
         ExchangeCurrency to = new ExchangeCurrency();
         to.setId(from.getId());
         to.setExchangeRate(from.getExchangeRate());
@@ -31,6 +32,7 @@ public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, Exchange
 
     @Override
     public ExchangeCurrencyDTO fromEntityToDTO(ExchangeCurrency from) {
+        if (from == null) return null;
         ExchangeCurrencyDTO to = new ExchangeCurrencyDTO();
         to.setId(from.getId());
         to.setExchangeRate(from.getExchangeRate());

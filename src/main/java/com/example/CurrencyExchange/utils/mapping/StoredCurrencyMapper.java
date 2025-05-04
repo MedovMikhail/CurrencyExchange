@@ -11,6 +11,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
 
     @Override
     public StoredCurrency fromDTOToEntity(StoredCurrencyDTO from) {
+        if (from == null) return null;
         StoredCurrency to = new StoredCurrency();
         to.setId(from.getId());
         to.setCount(from.getCount());
@@ -23,6 +24,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
 
     @Override
     public StoredCurrencyDTO fromEntityToDTO(StoredCurrency from) {
+        if (from == null) return null;
         StoredCurrencyDTO to = new StoredCurrencyDTO();
         to.setId(from.getId());
         to.setCount(from.getCount());

@@ -10,6 +10,7 @@ public class UserMapper implements Mapper<User, UserDTO>{
 
     @Override
     public User fromDTOToEntity(UserDTO from) {
+        if (from == null) return null;
         User to = new User();
         to.setId(from.getId());
         to.setName(from.getName());
@@ -23,6 +24,7 @@ public class UserMapper implements Mapper<User, UserDTO>{
 
     @Override
     public UserDTO fromEntityToDTO(User from) {
+        if (from == null) return null;
         UserDTO to = new UserDTO();
         to.setId(from.getId());
         to.setName(from.getName());

@@ -9,6 +9,7 @@ public class CurrencyMapper implements Mapper<Currency, CurrencyDTO>{
 
     @Override
     public Currency fromDTOToEntity(CurrencyDTO from) {
+        if (from == null) return null;
         Currency to = new Currency();
         to.setId(from.getId());
         to.setName(from.getName());
@@ -18,6 +19,7 @@ public class CurrencyMapper implements Mapper<Currency, CurrencyDTO>{
 
     @Override
     public CurrencyDTO fromEntityToDTO(Currency from) {
+        if (from == null) return null;
         CurrencyDTO to = new CurrencyDTO();
         to.setId(from.getId());
         to.setName(from.getName());
