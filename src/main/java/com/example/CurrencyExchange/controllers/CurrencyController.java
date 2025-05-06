@@ -3,6 +3,7 @@ package com.example.CurrencyExchange.controllers;
 import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.services.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,23 +21,27 @@ public class CurrencyController {
     }
 
     @GetMapping("/{id}")
-    public CurrencyDTO getCurrencyById(@PathVariable long id) {
-        return currencyService.getCurrency(id);
+    public ResponseEntity<CurrencyDTO> getCurrencyById(@PathVariable long id) {
+        CurrencyDTO currencyDTO = currencyService.getCurrency(id);
+        return currencyDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(currencyDTO);
     }
 
     @GetMapping("/code")
-    public CurrencyDTO getCurrencyByCode(@RequestParam String code) {
-        return currencyService.getCurrency(code);
+    public ResponseEntity<CurrencyDTO> getCurrencyByCode(@RequestParam String code) {
+        CurrencyDTO currencyDTO = currencyService.getCurrency(code);
+        return currencyDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(currencyDTO);
     }
 
     @PostMapping
-    public CurrencyDTO postCurrency(@RequestBody CurrencyDTO currencyDTO) {
-        return currencyService.addCurrency(currencyDTO);
+    public ResponseEntity<CurrencyDTO> postCurrency(@RequestBody CurrencyDTO currencyDTO) {
+        currencyDTO = currencyService.addCurrency(currencyDTO);
+        return currencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(currencyDTO);
     }
 
     @PutMapping("/{id}")
-    public CurrencyDTO putCurrency(@PathVariable long id, @RequestBody CurrencyDTO currencyDTO) {
-        return currencyService.updateCurrency(id, currencyDTO);
+    public ResponseEntity<CurrencyDTO> putCurrency(@PathVariable long id, @RequestBody CurrencyDTO currencyDTO) {
+        currencyDTO = currencyService.updateCurrency(id, currencyDTO);
+        return currencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(currencyDTO);
     }
 
     @DeleteMapping("/{id}")

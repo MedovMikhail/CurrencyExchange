@@ -3,6 +3,7 @@ package com.example.CurrencyExchange.controllers;
 import com.example.CurrencyExchange.dto.UserRoleDTO;
 import com.example.CurrencyExchange.services.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,19 +21,21 @@ public class UserRoleController {
     }
 
     @GetMapping("/{id}")
-    public UserRoleDTO getUserRole(@PathVariable long id) {
-        return userRoleService.getUserRole(id);
+    public ResponseEntity<UserRoleDTO> getUserRole(@PathVariable long id) {
+        UserRoleDTO userRoleDTO = userRoleService.getUserRole(id);
+        return userRoleDTO == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(userRoleDTO);
     }
 
     @PostMapping
-    public UserRoleDTO postUserRole(@RequestParam String name) {
-        System.out.println(1);
-        return userRoleService.addUserRole(name);
+    public ResponseEntity<UserRoleDTO> postUserRole(@RequestParam String name) {
+        UserRoleDTO userRoleDTO = userRoleService.addUserRole(name);
+        return userRoleDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(userRoleDTO);
     }
 
     @PutMapping("/{id}")
-    public UserRoleDTO putUserRole(@PathVariable long id, @RequestParam String name) {
-        return userRoleService.updateUserRole(id, name);
+    public ResponseEntity<UserRoleDTO> putUserRole(@PathVariable long id, @RequestParam String name) {
+        UserRoleDTO userRoleDTO = userRoleService.updateUserRole(id, name);
+        return userRoleDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(userRoleDTO);
     }
 
     @DeleteMapping("/{id}")
