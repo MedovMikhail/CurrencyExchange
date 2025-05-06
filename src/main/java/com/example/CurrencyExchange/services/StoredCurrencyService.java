@@ -8,6 +8,7 @@ import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -17,6 +18,10 @@ public class StoredCurrencyService {
     private StoredCurrencyRepository storedCurrencyRepository;
     @Autowired
     private StoredCurrencyMapper storedCurrencyMapper;
+    @Autowired
+    private CurrencyService currencyService;
+    @Autowired
+    private CashRegisterService registerService;
 
     public List<StoredCurrencyDTO> getStoredCurrencies() {
         return storedCurrencyRepository.findAll()
@@ -31,7 +36,11 @@ public class StoredCurrencyService {
         );
     }
 
-    public StoredCurrencyDTO createStoredCurrency(StoredCurrencyDTO storedCurrencyDTO) {
+    public StoredCurrencyDTO createStoredCurrency(long curId, long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
+        if (currencyService.getCurrency(curId) == null || registerService.getCashRegister(cashRegId) == null) return null;
+
+        storedCurrencyDTO.setCurrencyId(curId);
+        storedCurrencyDTO.setCashRegisterId(cashRegId);
         StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO);
         try {
             storedCurrency = storedCurrencyRepository.save(storedCurrency);
@@ -43,9 +52,32 @@ public class StoredCurrencyService {
     }
 
     public StoredCurrencyDTO updateStoredCurrency(long id, StoredCurrencyDTO storedCurrencyDTO) {
-        if (storedCurrencyRepository.findById(id).isEmpty()) return null;
-        storedCurrencyDTO.setId(id);
-        StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO);
+        StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
+        if (storedCurrency == null) return null;
+
+        storedCurrency.setCount(storedCurrencyDTO.getCount());
+        try {
+            storedCurrency = storedCurrencyRepository.save(storedCurrency);
+            return storedCurrencyMapper.fromEntityToDTO(storedCurrency);
+        } catch (NonUniqueResultException e) {
+            return null;
+        }
+    }
+
+    public StoredCurrencyDTO changeCountStoredCurrency(long id, BigDecimal count, boolean isAdd) {
+        StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
+        if (storedCurrency == null) return null;
+
+        if (isAdd) {
+            storedCurrency.setCount(
+                    storedCurrency.getCount().add(count)
+            );
+        } else {
+            storedCurrency.setCount(
+                    storedCurrency.getCount().subtract(count)
+            );
+        }
+
         try {
             storedCurrency = storedCurrencyRepository.save(storedCurrency);
             return storedCurrencyMapper.fromEntityToDTO(storedCurrency);

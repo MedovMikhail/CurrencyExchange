@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -27,14 +28,24 @@ public class StoredCurrencyController {
     }
 
     @PostMapping
-    public ResponseEntity<StoredCurrencyDTO> postStoredCurrency(@RequestBody StoredCurrencyDTO storedCurrencyDTO) {
-        storedCurrencyDTO = storedCurrencyService.createStoredCurrency(storedCurrencyDTO);
+    public ResponseEntity<StoredCurrencyDTO> postStoredCurrency(
+            @RequestParam long curId,
+            @RequestParam long cashRegId,
+            @RequestBody StoredCurrencyDTO storedCurrencyDTO
+    ) {
+        storedCurrencyDTO = storedCurrencyService.createStoredCurrency(curId, cashRegId, storedCurrencyDTO);
         return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<StoredCurrencyDTO> putStoredCurrency(@PathVariable long id, @RequestBody StoredCurrencyDTO storedCurrencyDTO) {
         storedCurrencyDTO = storedCurrencyService.updateStoredCurrency(id, storedCurrencyDTO);
+        return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
+    }
+
+    @PutMapping("/{id}/change")
+    public ResponseEntity<StoredCurrencyDTO> changeCountStoredCurrency(@PathVariable long id, @RequestParam BigDecimal count, @RequestParam boolean isAdd) {
+        StoredCurrencyDTO storedCurrencyDTO = storedCurrencyService.changeCountStoredCurrency(id, count, isAdd);
         return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 
