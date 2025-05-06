@@ -1,0 +1,99 @@
+package com.example.CurrencyExchange.services;
+
+import com.example.CurrencyExchange.dto.SafetyUserDTO;
+import com.example.CurrencyExchange.dto.UserDTO;
+import com.example.CurrencyExchange.dto.UserRoleDTO;
+import com.example.CurrencyExchange.entities.User;
+import com.example.CurrencyExchange.jwt.JWTCore;
+import com.example.CurrencyExchange.repositories.UserRepository;
+import com.example.CurrencyExchange.utils.mapping.SafetyUserMapper;
+import com.example.CurrencyExchange.utils.mapping.UserMapper;
+import com.example.CurrencyExchange.utils.mapping.UserRoleMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private SafetyUserMapper safetyUserMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JWTCore jwtCore;
+    @Autowired
+    private UserRoleService userRoleService;
+    @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    public List<SafetyUserDTO> getUsers(){
+        return userRepository.findAll()
+                .stream()
+                .map(safetyUserMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public SafetyUserDTO getUser(long id){
+        return safetyUserMapper.fromEntityToDTO(userRepository.findById(id).orElse(null));
+    }
+
+    public String register(UserDTO userDTO) {
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent() ||
+            userRepository.findByName(userDTO.getName()).isPresent() ||
+            userRepository.findByPhone(userDTO.getPhone()).isPresent()
+        ) return null;
+
+        User user = userMapper.fromDTOToEntity(userDTO);
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
+
+        UserRoleDTO userRoleDTO = userRoleService.getUserRole("user");
+        user.setRole(userRoleMapper.fromDTOToEntity(userRoleDTO));
+
+        userRepository.save(user);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword())
+        );
+
+        return jwtCore.generateToken(authentication);
+    }
+
+    public String login(UserDTO userDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return jwtCore.generateToken(authentication);
+    }
+
+    public UserDTO updateUser(long id, UserDTO userDTO) {
+        if (userRepository.findById(id).isEmpty()) return null;
+        userDTO.setId(id);
+        User user = userMapper.fromDTOToEntity(userDTO);
+        try {
+            user = userRepository.save(user);
+        } catch(DataAccessException e) {
+            return null;
+        }
+        return userMapper.fromEntityToDTO(user);
+    }
+
+    public void deleteUser(long id) {
+        userRepository.deleteById(id);
+    }
+
+}
