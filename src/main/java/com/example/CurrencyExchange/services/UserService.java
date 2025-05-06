@@ -80,16 +80,20 @@ public class UserService {
         return jwtCore.generateToken(authentication);
     }
 
-    public UserDTO updateUser(long id, UserDTO userDTO) {
-        if (userRepository.findById(id).isEmpty()) return null;
-        userDTO.setId(id);
-        User user = userMapper.fromDTOToEntity(userDTO);
+    public SafetyUserDTO updateUser(long id, UserDTO userDTO) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) return null;
+
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        user.setPhone(userDTO.getPhone());
+
         try {
             user = userRepository.save(user);
         } catch(DataAccessException e) {
             return null;
         }
-        return userMapper.fromEntityToDTO(user);
+        return safetyUserMapper.fromEntityToDTO(user);
     }
 
     public void deleteUser(long id) {
