@@ -25,7 +25,7 @@ public class JWTCore {
         User userDetails = (User) authentication.getPrincipal();
         HashMap<String, String> payload = new HashMap<>();
         payload.put("id", userDetails.getId().toString());
-        payload.put("role", userDetails.getRole().getRole());
+        payload.put("role", userDetails.getRole().getName());
         return Jwts.builder().subject(userDetails.getEmail())
                 .claims(payload)
                 .issuedAt(new Date(System.currentTimeMillis()))

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
 
-    UserRole findByRole(String role);
+    UserRole findByName(String name);
     @Transactional
-    void deleteByRole(String role);
+    void deleteByName(String name);
 }

@@ -12,7 +12,7 @@ public class UserRoleMapper implements Mapper<UserRole, UserRoleDTO> {
         if (from == null) return null;
         UserRole to = new UserRole();
         to.setId(from.getId());
-        to.setRole(from.getRole());
+        to.setName(from.getName());
         return to;
     }
 
@@ -21,7 +21,7 @@ public class UserRoleMapper implements Mapper<UserRole, UserRoleDTO> {
         if (from == null) return null;
         UserRoleDTO to = new UserRoleDTO();
         to.setId(from.getId());
-        to.setRole(from.getRole());
+        to.setName(from.getName());
         return to;
     }
 }

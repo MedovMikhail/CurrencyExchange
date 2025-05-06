@@ -19,7 +19,7 @@ public class UserRole {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String role;
+    private String name;
 
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "role")
     private List<User> users;

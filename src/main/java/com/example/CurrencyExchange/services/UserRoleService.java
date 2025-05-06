@@ -30,12 +30,12 @@ public class UserRoleService {
     }
 
     public UserRoleDTO getUserRole(String name) {
-        return userRoleMapper.fromEntityToDTO(userRoleRepository.findByRole(name.toUpperCase()));
+        return userRoleMapper.fromEntityToDTO(userRoleRepository.findByName(name.toUpperCase()));
     }
 
     public UserRoleDTO addUserRole(String roleName) {
         UserRole role = new UserRole();
-        role.setRole(roleName.toUpperCase());
+        role.setName(roleName.toUpperCase());
         try {
             role = userRoleRepository.save(role);
         } catch (DataIntegrityViolationException e) {
@@ -47,7 +47,7 @@ public class UserRoleService {
     public UserRoleDTO updateUserRole(long id, String roleName) {
         UserRole role = userRoleRepository.findById(id).orElse(null);
         if (role == null) return null;
-        role.setRole(roleName.toUpperCase());
+        role.setName(roleName.toUpperCase());
         try {
             role = userRoleRepository.save(role);
         } catch (DataIntegrityViolationException e) {
@@ -61,6 +61,6 @@ public class UserRoleService {
     }
 
     public void deleteUserRole(String roleName) {
-        userRoleRepository.deleteByRole(roleName.toUpperCase());
+        userRoleRepository.deleteByName(roleName.toUpperCase());
     }
 }

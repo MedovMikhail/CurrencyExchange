@@ -47,7 +47,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        authorities.add(new SimpleGrantedAuthority(role.getName()));
         return authorities;
     }
 
