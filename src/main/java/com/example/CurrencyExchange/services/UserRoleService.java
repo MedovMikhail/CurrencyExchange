@@ -4,8 +4,8 @@ import com.example.CurrencyExchange.dto.UserRoleDTO;
 import com.example.CurrencyExchange.entities.UserRole;
 import com.example.CurrencyExchange.repositories.UserRoleRepository;
 import com.example.CurrencyExchange.utils.mapping.UserRoleMapper;
-import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +19,8 @@ public class UserRoleService {
     private UserRoleRepository userRoleRepository;
 
     public List<UserRoleDTO> getUserRoles() {
-        return userRoleRepository.findAll().stream()
+        return userRoleRepository.findAll()
+                .stream()
                 .map(userRoleMapper::fromEntityToDTO)
                 .toList();
     }
@@ -28,15 +29,19 @@ public class UserRoleService {
         return userRoleMapper.fromEntityToDTO(userRoleRepository.findById(id).orElse(null));
     }
 
+    public UserRoleDTO getUserRole(String name) {
+        return userRoleMapper.fromEntityToDTO(userRoleRepository.findByRole(name.toUpperCase()));
+    }
+
     public UserRoleDTO addUserRole(String roleName) {
         UserRole role = new UserRole();
         role.setRole(roleName.toUpperCase());
         try {
             role = userRoleRepository.save(role);
-            return userRoleMapper.fromEntityToDTO(role);
-        } catch (NonUniqueResultException e) {
+        } catch (DataIntegrityViolationException e) {
             return null;
         }
+        return userRoleMapper.fromEntityToDTO(role);
     }
 
     public UserRoleDTO updateUserRole(long id, String roleName) {
@@ -45,7 +50,7 @@ public class UserRoleService {
         role.setRole(roleName.toUpperCase());
         try {
             role = userRoleRepository.save(role);
-        } catch (NonUniqueResultException e) {
+        } catch (DataIntegrityViolationException e) {
             return null;
         }
         return userRoleMapper.fromEntityToDTO(role);

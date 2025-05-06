@@ -4,8 +4,8 @@ import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.entities.Currency;
 import com.example.CurrencyExchange.repositories.CurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.CurrencyMapper;
-import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +19,8 @@ public class CurrencyService {
     private CurrencyRepository currencyRepository;
 
     public List<CurrencyDTO> getCurrencies() {
-        return currencyRepository.findAll().stream()
+        return currencyRepository.findAll()
+                .stream()
                 .map(currencyMapper::fromEntityToDTO)
                 .toList();
     }
@@ -43,7 +44,7 @@ public class CurrencyService {
                     currencyMapper.fromDTOToEntity(currencyDTO)
             );
             return currencyMapper.fromEntityToDTO(currency);
-        } catch (NonUniqueResultException e) {
+        } catch (DataIntegrityViolationException e) {
             return null;
         }
     }
@@ -56,7 +57,7 @@ public class CurrencyService {
         try {
             currency = currencyRepository.save(currency);
             return currencyMapper.fromEntityToDTO(currency);
-        } catch (NonUniqueResultException e) {
+        } catch (DataIntegrityViolationException e) {
             return null;
         }
     }
