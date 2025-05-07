@@ -8,10 +8,9 @@ import com.example.CurrencyExchange.entities.User;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, ExchangeCurrencyDTO>{
+public class ExchangeCurrencyMapper {
 
-    @Override
-    public ExchangeCurrency fromDTOToEntity(ExchangeCurrencyDTO from) {
+    public ExchangeCurrency fromDTOToEntity(ExchangeCurrencyDTO from, long baseCurId, long targetCurId) {
         if (from == null) return null;
         ExchangeCurrency to = new ExchangeCurrency();
         to.setId(from.getId());
@@ -20,9 +19,9 @@ public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, Exchange
         to.setCountTargetCash(from.getCountTargetCash());
         to.setDateOfExchange(from.getDateOfExchange());
         to.setBaseCurrency(new Currency());
-        to.getBaseCurrency().setId(from.getBaseCurrencyId());
+        to.getBaseCurrency().setId(baseCurId);
         to.setTargetCurrency(new Currency());
-        to.getTargetCurrency().setId(from.getTargetCurrencyId());
+        to.getTargetCurrency().setId(targetCurId);
         to.setCashRegister(new CashRegister());
         to.getCashRegister().setId(from.getCashRegisterId());
         to.setUser(new User());
@@ -30,7 +29,6 @@ public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, Exchange
         return to;
     }
 
-    @Override
     public ExchangeCurrencyDTO fromEntityToDTO(ExchangeCurrency from) {
         if (from == null) return null;
         ExchangeCurrencyDTO to = new ExchangeCurrencyDTO();
@@ -39,8 +37,8 @@ public class ExchangeCurrencyMapper implements Mapper<ExchangeCurrency, Exchange
         to.setCountBaseCash(from.getCountBaseCash());
         to.setCountTargetCash(from.getCountTargetCash());
         to.setDateOfExchange(from.getDateOfExchange());
-        to.setBaseCurrencyId(from.getBaseCurrency().getId());
-        to.setTargetCurrencyId(from.getTargetCurrency().getId());
+        to.setBaseCurrencyCode(from.getBaseCurrency().getCode());
+        to.setTargetCurrencyCode(from.getTargetCurrency().getCode());
         to.setCashRegisterId(from.getCashRegister().getId());
         to.setUserId(from.getUser().getId());
         return to;

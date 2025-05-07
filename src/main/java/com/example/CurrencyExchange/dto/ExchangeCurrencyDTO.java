@@ -17,8 +17,8 @@ public class ExchangeCurrencyDTO {
     private BigDecimal countTargetCash;
     private BigDecimal exchangeRate;
     private ZonedDateTime dateOfExchange;
-    private Long baseCurrencyId;
-    private Long targetCurrencyId;
+    private String baseCurrencyCode;
+    private String targetCurrencyCode;
     private Long cashRegisterId;
     private Long userId;
 }
