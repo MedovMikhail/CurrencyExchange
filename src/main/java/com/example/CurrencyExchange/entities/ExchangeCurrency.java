@@ -19,16 +19,16 @@ public class ExchangeCurrency {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exchange_currency_generator")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, scale = 3, precision = 38)
     private BigDecimal countBaseCash;
 
-    @Column(nullable = false)
+    @Column(nullable = false, scale = 3, precision = 38)
     private BigDecimal countTargetCash;
 
-    @Column(nullable = false)
+    @Column(nullable = false, scale = 8, precision = 20)
     private BigDecimal exchangeRate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, scale = 8, precision = 20)
     private ZonedDateTime dateOfExchange;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)

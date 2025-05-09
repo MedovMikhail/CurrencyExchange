@@ -19,7 +19,7 @@ public class StoredCurrency {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "stored_currency_generator")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, scale = 3, precision = 38)
     private BigDecimal count;
 
     @ManyToOne(targetEntity = Currency.class, fetch = FetchType.LAZY)
