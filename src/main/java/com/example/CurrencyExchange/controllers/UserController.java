@@ -23,21 +23,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SafetyUserDTO> getUserById(@PathVariable long id) {
+    public ResponseEntity<SafetyUserDTO> getUserById(@PathVariable Long id) {
         SafetyUserDTO safetyUserDTO = userService.getUser(id);
         return safetyUserDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(safetyUserDTO);
     }
 
     @PreAuthorize("#id == authentication.principal.id")
     @PutMapping("/{id}")
-    public ResponseEntity<SafetyUserDTO> putUser(@PathVariable long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<SafetyUserDTO> putUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         SafetyUserDTO safetyUserDTO = userService.updateUser(id, userDTO);
         return safetyUserDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(safetyUserDTO);
     }
 
     @PreAuthorize("#id == authentication.principal.id")
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable long id) {
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 }

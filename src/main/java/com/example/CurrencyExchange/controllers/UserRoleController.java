@@ -21,7 +21,7 @@ public class UserRoleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserRoleDTO> getUserRole(@PathVariable long id) {
+    public ResponseEntity<UserRoleDTO> getUserRole(@PathVariable Long id) {
         UserRoleDTO userRoleDTO = userRoleService.getUserRole(id);
         return userRoleDTO == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(userRoleDTO);
     }
@@ -33,13 +33,13 @@ public class UserRoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserRoleDTO> putUserRole(@PathVariable long id, @RequestParam String name) {
+    public ResponseEntity<UserRoleDTO> putUserRole(@PathVariable Long id, @RequestParam String name) {
         UserRoleDTO userRoleDTO = userRoleService.updateUserRole(id, name);
         return userRoleDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(userRoleDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUserRoleById(@PathVariable long id) {
+    public void deleteUserRoleById(@PathVariable Long id) {
         userRoleService.deleteUserRole(id);
     }
 

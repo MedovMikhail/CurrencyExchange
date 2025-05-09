@@ -23,7 +23,7 @@ public class ExchangeCurrencyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExchangeCurrencyDTO> getExchangeCurrency(@PathVariable  long id) {
+    public ResponseEntity<ExchangeCurrencyDTO> getExchangeCurrency(@PathVariable  Long id) {
         ExchangeCurrencyDTO exchangeCurrencyDTO = exchangeCurrencyService.getExchangeCurrency(id);
         return exchangeCurrencyDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(exchangeCurrencyDTO);
     }
@@ -31,20 +31,20 @@ public class ExchangeCurrencyController {
     @PreAuthorize("#userId == authentication.principal.id")
     @PostMapping
     public ResponseEntity<ExchangeCurrencyDTO> postExchangeCurrency(
-            @RequestParam long userId, @RequestParam long cashRegId,
+            @RequestParam Long userId, @RequestParam Long cashRegId,
             @RequestBody ExchangeCurrencyDTO exchangeCurrencyDTO) {
         exchangeCurrencyDTO = exchangeCurrencyService.addExchangeCurrency(userId, cashRegId, exchangeCurrencyDTO);
         return exchangeCurrencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(exchangeCurrencyDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExchangeCurrencyDTO> putExchangeCurrency(@PathVariable long id, @RequestBody BigDecimal baseCurCount) {
+    public ResponseEntity<ExchangeCurrencyDTO> putExchangeCurrency(@PathVariable Long id, @RequestBody BigDecimal baseCurCount) {
         ExchangeCurrencyDTO exchangeCurrencyDTO = exchangeCurrencyService.updateExchangeCurrency(id, baseCurCount);
         return exchangeCurrencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(exchangeCurrencyDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteExchangeCurrency(@PathVariable long id) {
+    public void deleteExchangeCurrency(@PathVariable Long id) {
         exchangeCurrencyService.deleteExchangeCurrency(id);
     }
 }

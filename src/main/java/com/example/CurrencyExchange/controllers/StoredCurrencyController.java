@@ -22,15 +22,15 @@ public class StoredCurrencyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StoredCurrencyDTO> getStoredCurrencyById(@PathVariable long id) {
+    public ResponseEntity<StoredCurrencyDTO> getStoredCurrencyById(@PathVariable Long id) {
         StoredCurrencyDTO storedCurrencyDTO = storedCurrencyService.getStoredCurrency(id);
         return storedCurrencyDTO == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 
     @PostMapping
     public ResponseEntity<StoredCurrencyDTO> postStoredCurrency(
-            @RequestParam long curId,
-            @RequestParam long cashRegId,
+            @RequestParam Long curId,
+            @RequestParam Long cashRegId,
             @RequestBody StoredCurrencyDTO storedCurrencyDTO
     ) {
         storedCurrencyDTO = storedCurrencyService.createStoredCurrency(curId, cashRegId, storedCurrencyDTO);
@@ -38,19 +38,19 @@ public class StoredCurrencyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StoredCurrencyDTO> putStoredCurrency(@PathVariable long id, @RequestBody StoredCurrencyDTO storedCurrencyDTO) {
+    public ResponseEntity<StoredCurrencyDTO> putStoredCurrency(@PathVariable Long id, @RequestBody StoredCurrencyDTO storedCurrencyDTO) {
         storedCurrencyDTO = storedCurrencyService.updateStoredCurrency(id, storedCurrencyDTO);
         return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 
     @PutMapping("/{id}/change")
-    public ResponseEntity<StoredCurrencyDTO> changeCountStoredCurrency(@PathVariable long id, @RequestParam BigDecimal count, @RequestParam boolean isAdd) {
+    public ResponseEntity<StoredCurrencyDTO> changeCountStoredCurrency(@PathVariable Long id, @RequestParam BigDecimal count, @RequestParam boolean isAdd) {
         StoredCurrencyDTO storedCurrencyDTO = storedCurrencyService.changeCountStoredCurrency(id, count, isAdd);
         return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStoredCurrency(@PathVariable long id) {
+    public void deleteStoredCurrency(@PathVariable Long id) {
         storedCurrencyService.deleteStoredCurrency(id);
     }
 }

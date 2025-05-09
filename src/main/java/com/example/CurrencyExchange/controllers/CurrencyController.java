@@ -21,7 +21,7 @@ public class CurrencyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CurrencyDTO> getCurrencyById(@PathVariable long id) {
+    public ResponseEntity<CurrencyDTO> getCurrencyById(@PathVariable Long id) {
         CurrencyDTO currencyDTO = currencyService.getCurrency(id);
         return currencyDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(currencyDTO);
     }
@@ -39,13 +39,13 @@ public class CurrencyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CurrencyDTO> putCurrency(@PathVariable long id, @RequestBody CurrencyDTO currencyDTO) {
+    public ResponseEntity<CurrencyDTO> putCurrency(@PathVariable Long id, @RequestBody CurrencyDTO currencyDTO) {
         currencyDTO = currencyService.updateCurrency(id, currencyDTO);
         return currencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(currencyDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCurrencyById(@PathVariable long id) {
+    public void deleteCurrencyById(@PathVariable Long id) {
         currencyService.deleteCurrency(id);
     }
 

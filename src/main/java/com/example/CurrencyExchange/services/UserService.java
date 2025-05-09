@@ -47,7 +47,7 @@ public class UserService {
                 .toList();
     }
 
-    public SafetyUserDTO getUser(long id){
+    public SafetyUserDTO getUser(Long id){
         return safetyUserMapper.fromEntityToDTO(userRepository.findById(id).orElse(null));
     }
 
@@ -80,7 +80,7 @@ public class UserService {
         return jwtCore.generateToken(authentication);
     }
 
-    public SafetyUserDTO updateUser(long id, UserDTO userDTO) {
+    public SafetyUserDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) return null;
 
@@ -96,7 +96,7 @@ public class UserService {
         return safetyUserMapper.fromEntityToDTO(user);
     }
 
-    public void deleteUser(long id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 

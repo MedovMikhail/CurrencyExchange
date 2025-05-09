@@ -25,7 +25,7 @@ public class UserRoleService {
                 .toList();
     }
 
-    public UserRoleDTO getUserRole(long id) {
+    public UserRoleDTO getUserRole(Long id) {
         return userRoleMapper.fromEntityToDTO(userRoleRepository.findById(id).orElse(null));
     }
 
@@ -44,7 +44,7 @@ public class UserRoleService {
         return userRoleMapper.fromEntityToDTO(role);
     }
 
-    public UserRoleDTO updateUserRole(long id, String roleName) {
+    public UserRoleDTO updateUserRole(Long id, String roleName) {
         UserRole role = userRoleRepository.findById(id).orElse(null);
         if (role == null) return null;
         role.setName(roleName.toUpperCase());
@@ -56,7 +56,7 @@ public class UserRoleService {
         return userRoleMapper.fromEntityToDTO(role);
     }
 
-    public void deleteUserRole(long id) {
+    public void deleteUserRole(Long id) {
         userRoleRepository.deleteById(id);
     }
 

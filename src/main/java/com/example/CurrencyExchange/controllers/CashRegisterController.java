@@ -22,7 +22,7 @@ public class CashRegisterController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CashRegisterDTO> getCashRegisterById(@PathVariable long id) {
+    public ResponseEntity<CashRegisterDTO> getCashRegisterById(@PathVariable Long id) {
         CashRegisterDTO cashRegisterDTO = cashRegisterService.getCashRegister(id);
         return cashRegisterDTO == null ? ResponseEntity.notFound().build(): ResponseEntity.ok(cashRegisterDTO);
     }
@@ -34,13 +34,13 @@ public class CashRegisterController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CashRegisterDTO> putCashRegister(@PathVariable long id, @RequestBody CashRegisterDTO cashRegisterDTO) {
+    public ResponseEntity<CashRegisterDTO> putCashRegister(@PathVariable Long id, @RequestBody CashRegisterDTO cashRegisterDTO) {
         cashRegisterDTO = cashRegisterService.updateCashRegister(id, cashRegisterDTO);
         return cashRegisterDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(cashRegisterDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCashRegister(@PathVariable long id) {
+    public void deleteCashRegister(@PathVariable Long id) {
             cashRegisterService.deleteCashRegister(id);
     }
 }

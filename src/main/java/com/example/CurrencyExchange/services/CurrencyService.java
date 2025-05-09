@@ -25,7 +25,7 @@ public class CurrencyService {
                 .toList();
     }
 
-    public CurrencyDTO getCurrency(long id) {
+    public CurrencyDTO getCurrency(Long id) {
         return currencyMapper.fromEntityToDTO(
                 currencyRepository.findById(id).orElse(null)
         );
@@ -49,7 +49,7 @@ public class CurrencyService {
         }
     }
 
-    public CurrencyDTO updateCurrency(long id, CurrencyDTO currencyDTO) {
+    public CurrencyDTO updateCurrency(Long id, CurrencyDTO currencyDTO) {
         if (currencyRepository.findById(id).isEmpty()) return null;
         currencyDTO.setId(id);
         currencyDTO.setCode(currencyDTO.getCode().toUpperCase());
@@ -62,7 +62,7 @@ public class CurrencyService {
         }
     }
 
-    public void deleteCurrency(long id){
+    public void deleteCurrency(Long id){
         currencyRepository.deleteById(id);
     }
 

@@ -35,16 +35,19 @@ public class ExchangeCurrencyService {
                 .toList();
     }
 
-    public ExchangeCurrencyDTO getExchangeCurrency(long id) {
+    public ExchangeCurrencyDTO getExchangeCurrency(Long id) {
         return exchangeCurrencyMapper.fromEntityToDTO(
                 exchangeCurrencyRepository.findById(id).orElse(null)
         );
     }
 
     public ExchangeCurrencyDTO addExchangeCurrency(
-            long userId, long cashRegId,
-            ExchangeCurrencyDTO exchangeCurrencyRequestDTO) {
-
+            Long userId, Long cashRegId,
+            ExchangeCurrencyDTO exchangeCurrencyRequestDTO
+    ) {
+        /*
+            if user and cashRegister exists
+         */
         if (userService.getUser(userId) == null || cashRegisterService.getCashRegister(cashRegId) == null) return null;
 
         CurrencyDTO baseCurrencyDTO = currencyService.getCurrency(
@@ -53,7 +56,9 @@ public class ExchangeCurrencyService {
         CurrencyDTO targetCurrencyDTO = currencyService.getCurrency(
                 exchangeCurrencyRequestDTO.getTargetCurrencyCode()
         );
-
+        /*
+            if baseCurrency and targetCurrency exists
+         */
         if (baseCurrencyDTO == null || targetCurrencyDTO == null) return null;
 
         exchangeCurrencyRequestDTO.setUserId(userId);
@@ -63,10 +68,14 @@ public class ExchangeCurrencyService {
                 exchangeCurrencyRequestDTO, baseCurrencyDTO.getId(), targetCurrencyDTO.getId()
         );
 
+        /*
+            it's temporary, because need to do with application2 and application3
+         */
         exchangeCurrency.setExchangeRate(BigDecimal.valueOf(81));
         exchangeCurrency.setCountTargetCash(
                 exchangeCurrency.getCountBaseCash().divide(exchangeCurrency.getExchangeRate(), 2, RoundingMode.DOWN)
         );
+
         exchangeCurrency.setDateOfExchange(ZonedDateTime.now(ZoneId.of("Europe/Moscow")));
 
         try {
@@ -80,7 +89,7 @@ public class ExchangeCurrencyService {
         return exchangeCurrencyDTO;
     }
 
-    public ExchangeCurrencyDTO updateExchangeCurrency(long id, BigDecimal countBaseCash) {
+    public ExchangeCurrencyDTO updateExchangeCurrency(Long id, BigDecimal countBaseCash) {
         ExchangeCurrency exchangeCurrency = exchangeCurrencyRepository.findById(id).orElse(null);
 
         if (exchangeCurrency == null) return null;
@@ -96,7 +105,7 @@ public class ExchangeCurrencyService {
         return exchangeCurrencyMapper.fromEntityToDTO(exchangeCurrency);
     }
 
-    public void deleteExchangeCurrency(long id) {
+    public void deleteExchangeCurrency(Long id) {
         exchangeCurrencyRepository.deleteById(id);
     }
     

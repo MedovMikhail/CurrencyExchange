@@ -30,13 +30,13 @@ public class StoredCurrencyService {
                 .toList();
     }
 
-    public StoredCurrencyDTO getStoredCurrency(long id) {
+    public StoredCurrencyDTO getStoredCurrency(Long id) {
         return storedCurrencyMapper.fromEntityToDTO(
                 storedCurrencyRepository.findById(id).orElse(null)
         );
     }
 
-    public StoredCurrencyDTO createStoredCurrency(long curId, long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
+    public StoredCurrencyDTO createStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
         if (currencyService.getCurrency(curId) == null || registerService.getCashRegister(cashRegId) == null) return null;
 
         storedCurrencyDTO.setCurrencyId(curId);
@@ -51,7 +51,7 @@ public class StoredCurrencyService {
         return storedCurrencyMapper.fromEntityToDTO(storedCurrency);
     }
 
-    public StoredCurrencyDTO updateStoredCurrency(long id, StoredCurrencyDTO storedCurrencyDTO) {
+    public StoredCurrencyDTO updateStoredCurrency(Long id, StoredCurrencyDTO storedCurrencyDTO) {
         StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
         if (storedCurrency == null) return null;
 
@@ -64,7 +64,7 @@ public class StoredCurrencyService {
         }
     }
 
-    public StoredCurrencyDTO changeCountStoredCurrency(long id, BigDecimal count, boolean isAdd) {
+    public StoredCurrencyDTO changeCountStoredCurrency(Long id, BigDecimal count, boolean isAdd) {
         StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
         if (storedCurrency == null) return null;
 
@@ -86,7 +86,7 @@ public class StoredCurrencyService {
         }
     }
     
-    public void deleteStoredCurrency(long id) {
+    public void deleteStoredCurrency(Long id) {
         storedCurrencyRepository.deleteById(id);
     }
 }

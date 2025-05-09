@@ -24,7 +24,7 @@ public class CashRegisterService {
                 .toList();
     }
 
-    public CashRegisterDTO getCashRegister(long id) {
+    public CashRegisterDTO getCashRegister(Long id) {
         return cashRegisterMapper.fromEntityToDTO(cashRegisterRepository.findById(id).orElse(null));
     }
 
@@ -38,7 +38,7 @@ public class CashRegisterService {
         return cashRegisterMapper.fromEntityToDTO(cashRegister);
     }
 
-    public CashRegisterDTO updateCashRegister(long id, CashRegisterDTO cashRegisterDto) {
+    public CashRegisterDTO updateCashRegister(Long id, CashRegisterDTO cashRegisterDto) {
         if (cashRegisterRepository.findById(id).isEmpty()) return null;
         cashRegisterDto.setId(id);
         CashRegister cashRegister = cashRegisterMapper.fromDTOToEntity(cashRegisterDto);
@@ -51,7 +51,7 @@ public class CashRegisterService {
 
     }
 
-    public void deleteCashRegister(long id) {
+    public void deleteCashRegister(Long id) {
         cashRegisterRepository.deleteById(id);
     }
 }
