@@ -2,16 +2,23 @@ package com.example.CurrencyExchange.services;
 
 import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.dto.ExchangeCurrencyDTO;
+import com.example.CurrencyExchange.dto.kafka.CurrencyCodesMessage;
 import com.example.CurrencyExchange.entities.ExchangeCurrency;
+import com.example.CurrencyExchange.kafka.consumer.KafkaConsumers;
+import com.example.CurrencyExchange.kafka.producer.KafkaSender;
 import com.example.CurrencyExchange.repositories.ExchangeCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.ExchangeCurrencyMapper;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -27,6 +34,10 @@ public class ExchangeCurrencyService {
     private CashRegisterService cashRegisterService;
     @Autowired
     private CurrencyService currencyService;
+    @Autowired
+    private KafkaSender kafkaSender;
+    @Autowired
+    private KafkaConsumers kafkaConsumers;
 
     public List<ExchangeCurrencyDTO> getExchangeCurrencies(){
         return exchangeCurrencyRepository.findAll()
@@ -68,12 +79,27 @@ public class ExchangeCurrencyService {
                 exchangeCurrencyRequestDTO, baseCurrencyDTO.getId(), targetCurrencyDTO.getId()
         );
 
-        /*
-            it's temporary, because need to do with application2 and application3
-         */
-        exchangeCurrency.setExchangeRate(BigDecimal.valueOf(81));
+        String key = new Date().toString();
+        BigDecimal exchangeRate = null;
+        CurrencyCodesMessage codesMessage = new CurrencyCodesMessage(
+                baseCurrencyDTO.getCode(), targetCurrencyDTO.getCode()
+        );
+        kafkaSender.sendMessage(codesMessage,"request-currency-rate", key);
+        try (KafkaConsumer<String, String> consumer = kafkaConsumers.currencyRateConsumer()) {
+            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(5000));
+            for (ConsumerRecord<String, String> record: consumerRecords) {
+                if (record.key().equals(key)){
+                    exchangeRate = new BigDecimal(record.value());
+                    break;
+                }
+            }
+        }
+
+        if (exchangeRate == null) return null;
+
+        exchangeCurrency.setExchangeRate(exchangeRate);
         exchangeCurrency.setCountTargetCash(
-                exchangeCurrency.getCountBaseCash().divide(exchangeCurrency.getExchangeRate(), 2, RoundingMode.DOWN)
+                exchangeCurrency.getCountBaseCash().multiply(exchangeCurrency.getExchangeRate())
         );
 
         exchangeCurrency.setDateOfExchange(ZonedDateTime.now(ZoneId.of("Europe/Moscow")));
