@@ -36,6 +36,10 @@ public class StoredCurrencyService {
         );
     }
 
+    public BigDecimal getStoredCurrencyCountByCodeFromCashRegister(Long cashRegId, String code) {
+        return storedCurrencyRepository.getStoredCurrencyCountByCode(cashRegId, code);
+    }
+
     public StoredCurrencyDTO createStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
         if (currencyService.getCurrency(curId) == null || registerService.getCashRegister(cashRegId) == null) return null;
 
