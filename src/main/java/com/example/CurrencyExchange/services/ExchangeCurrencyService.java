@@ -2,22 +2,17 @@ package com.example.CurrencyExchange.services;
 
 import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.dto.ExchangeCurrencyDTO;
-import com.example.CurrencyExchange.dto.kafka.CurrencyCodesMessage;
+import com.example.CurrencyExchange.dto.kafka.ExchangeValuesDTO;
+import com.example.CurrencyExchange.dto.kafka.ExchangedCurrencyDTO;
 import com.example.CurrencyExchange.entities.ExchangeCurrency;
-import com.example.CurrencyExchange.kafka.consumer.KafkaConsumers;
-import com.example.CurrencyExchange.kafka.producer.KafkaSender;
+import com.example.CurrencyExchange.kafka.KafkaService;
 import com.example.CurrencyExchange.repositories.ExchangeCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.ExchangeCurrencyMapper;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -33,11 +28,11 @@ public class ExchangeCurrencyService {
     @Autowired
     private CashRegisterService cashRegisterService;
     @Autowired
+    private StoredCurrencyService storedCurrencyService;
+    @Autowired
     private CurrencyService currencyService;
     @Autowired
-    private KafkaSender kafkaSender;
-    @Autowired
-    private KafkaConsumers kafkaConsumers;
+    private KafkaService kafkaService;
 
     public List<ExchangeCurrencyDTO> getExchangeCurrencies(){
         return exchangeCurrencyRepository.findAll()
@@ -54,65 +49,75 @@ public class ExchangeCurrencyService {
 
     public ExchangeCurrencyDTO addExchangeCurrency(
             Long userId, Long cashRegId,
-            ExchangeCurrencyDTO exchangeCurrencyRequestDTO
+            ExchangeCurrencyDTO exchangeCurrencyDTO
     ) {
-        /*
-            if user and cashRegister exists
-         */
+        // проверяем существование пользователя и кассы
         if (userService.getUser(userId) == null || cashRegisterService.getCashRegister(cashRegId) == null) return null;
 
+        // получаем валюту из которой переводят и в которую переводят
         CurrencyDTO baseCurrencyDTO = currencyService.getCurrency(
-                exchangeCurrencyRequestDTO.getBaseCurrencyCode()
+                exchangeCurrencyDTO.getBaseCurrencyCode()
         );
         CurrencyDTO targetCurrencyDTO = currencyService.getCurrency(
-                exchangeCurrencyRequestDTO.getTargetCurrencyCode()
+                exchangeCurrencyDTO.getTargetCurrencyCode()
         );
-        /*
-            if baseCurrency and targetCurrency exists
-         */
+
+        // проверяем существование валют
         if (baseCurrencyDTO == null || targetCurrencyDTO == null) return null;
 
-        exchangeCurrencyRequestDTO.setUserId(userId);
-        exchangeCurrencyRequestDTO.setCashRegisterId(cashRegId);
-
-        ExchangeCurrency exchangeCurrency = exchangeCurrencyMapper.fromDTOToEntity(
-                exchangeCurrencyRequestDTO, baseCurrencyDTO.getId(), targetCurrencyDTO.getId()
-        );
-
+        // создаем ключ для сообщений в кафке
         String key = new Date().toString();
-        BigDecimal exchangeRate = null;
-        CurrencyCodesMessage codesMessage = new CurrencyCodesMessage(
-                baseCurrencyDTO.getCode(), targetCurrencyDTO.getCode()
-        );
-        kafkaSender.sendMessage(codesMessage,"request-currency-rate", key);
-        try (KafkaConsumer<String, String> consumer = kafkaConsumers.currencyRateConsumer()) {
-            ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(5000));
-            for (ConsumerRecord<String, String> record: consumerRecords) {
-                if (record.key().equals(key)){
-                    exchangeRate = new BigDecimal(record.value());
-                    break;
-                }
-            }
-        }
 
+        BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyRate(
+                baseCurrencyDTO.getCode(),
+                targetCurrencyDTO.getCode(),
+                key
+        );
         if (exchangeRate == null) return null;
 
-        exchangeCurrency.setExchangeRate(exchangeRate);
-        exchangeCurrency.setCountTargetCash(
-                exchangeCurrency.getCountBaseCash().multiply(exchangeCurrency.getExchangeRate())
+        // получаем количество денег в кассе в обоих валютах
+        BigDecimal baseCashRegisterCount = storedCurrencyService.getStoredCurrencyCountByCodeFromCashRegister(
+                cashRegId, baseCurrencyDTO.getCode()
+        );
+        BigDecimal targetCashRegisterCount = storedCurrencyService.getStoredCurrencyCountByCodeFromCashRegister(
+                cashRegId, targetCurrencyDTO.getCode()
         );
 
-        exchangeCurrency.setDateOfExchange(ZonedDateTime.now(ZoneId.of("Europe/Moscow")));
+        // проверяем хранит ли касса деньги в этих валютах
+        if (baseCashRegisterCount == null || targetCashRegisterCount == null) return null;
+
+        // создаем объект со значениями обмена валют
+        ExchangeValuesDTO exchangeValuesDTO = new ExchangeValuesDTO(
+                exchangeCurrencyDTO.getCountBaseCash(),
+                exchangeRate,
+                baseCashRegisterCount,
+                targetCashRegisterCount
+        );
+
+        // ожидаем прихода обработанного обмена валют
+        ExchangedCurrencyDTO exchangedCurrencyDTO = kafkaService.sendAndWaitExchangedCurrency(exchangeValuesDTO, key);
+        if (exchangedCurrencyDTO == null) return null;
+
+        exchangeCurrencyDTO.setExchangeRate(exchangeRate);
+        exchangeCurrencyDTO = exchangeCurrencyMapper.fromExchangedToExchange(exchangeCurrencyDTO, exchangedCurrencyDTO);
+        exchangeCurrencyDTO.setUserId(userId);
+        exchangeCurrencyDTO.setCashRegisterId(cashRegId);
+
+        ExchangeCurrency exchangeCurrency = exchangeCurrencyMapper.fromDTOToEntity(
+                exchangeCurrencyDTO, baseCurrencyDTO.getId(), targetCurrencyDTO.getId()
+        );
 
         try {
             exchangeCurrency = exchangeCurrencyRepository.save(exchangeCurrency);
+            exchangeCurrencyDTO = exchangeCurrencyMapper.fromEntityToDTO(
+                    exchangeCurrency,
+                    baseCurrencyDTO.getCode(),
+                    targetCurrencyDTO.getCode()
+            );
+            return exchangeCurrencyDTO;
         } catch (RuntimeException e) {
             return null;
         }
-        ExchangeCurrencyDTO exchangeCurrencyDTO = exchangeCurrencyMapper.fromEntityToDTO(exchangeCurrency);
-        exchangeCurrencyDTO.setBaseCurrencyCode(baseCurrencyDTO.getCode());
-        exchangeCurrencyDTO.setTargetCurrencyCode(targetCurrencyDTO.getCode());
-        return exchangeCurrencyDTO;
     }
 
     public ExchangeCurrencyDTO updateExchangeCurrency(Long id, BigDecimal countBaseCash) {
@@ -127,7 +132,6 @@ public class ExchangeCurrencyService {
         } catch (RuntimeException e) {
             return null;
         }
-
         return exchangeCurrencyMapper.fromEntityToDTO(exchangeCurrency);
     }
 
