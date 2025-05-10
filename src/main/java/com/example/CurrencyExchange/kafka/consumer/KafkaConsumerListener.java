@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class KafkaConsumers {
+public class KafkaConsumerListener {
 
     @Autowired
     private KafkaConsumerConfig kafkaConsumerConfig;
 
-    public KafkaConsumer<String, String> currencyRateConsumer() {
+    public KafkaConsumer<String, String> getConsumer(String topic) {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig.config());
-        consumer.subscribe(List.of("get-currency-rate"));
+        consumer.subscribe(List.of(topic));
         return consumer;
     }
 }
