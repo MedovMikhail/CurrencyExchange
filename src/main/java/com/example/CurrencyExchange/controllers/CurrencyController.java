@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class CurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Добавить валюту",
             description = "В ответе возвращается Currency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PostMapping
     public ResponseEntity<CurrencyDTO> postCurrency(@RequestBody CurrencyDTO currencyDTO) {
         currencyDTO = currencyService.addCurrency(currencyDTO);
@@ -55,6 +57,7 @@ public class CurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Обновить информацию о валюте",
             description = "В ответе возвращается Currency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PutMapping("/{id}")
     public ResponseEntity<CurrencyDTO> putCurrency(@PathVariable Long id, @RequestBody CurrencyDTO currencyDTO) {
         currencyDTO = currencyService.updateCurrency(id, currencyDTO);
@@ -64,6 +67,7 @@ public class CurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить валюту по id",
             description = "В ответе возвращается ничего.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @DeleteMapping("/{id}")
     public void deleteCurrencyById(@PathVariable Long id) {
         currencyService.deleteCurrency(id);
@@ -72,6 +76,7 @@ public class CurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить валюту по её коду",
             description = "В ответе возвращается ничего.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @DeleteMapping
     public void deleteCurrencyByCode(@RequestParam String code) {
         currencyService.deleteCurrency(code);

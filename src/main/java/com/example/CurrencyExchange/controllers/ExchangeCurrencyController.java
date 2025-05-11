@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -51,6 +50,7 @@ public class ExchangeCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить операцию по обмену валюты",
             description = "В ответе возвращается ничего.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @DeleteMapping("/{id}")
     public void deleteExchangeCurrency(@PathVariable Long id) {
         exchangeCurrencyService.deleteExchangeCurrency(id);

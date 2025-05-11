@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class CashRegisterController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Добавить кассу",
             description = "В ответе возвращается CashRegister.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PostMapping
     public ResponseEntity<CashRegisterDTO> postCashRegister(@RequestBody CashRegisterDTO cashRegisterDTO) {
         cashRegisterDTO = cashRegisterService.addCashRegister(cashRegisterDTO);
@@ -47,6 +49,7 @@ public class CashRegisterController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Обновить информацию о кассе",
             description = "В ответе возвращается CashRegister.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PutMapping("/{id}")
     public ResponseEntity<CashRegisterDTO> putCashRegister(@PathVariable Long id, @RequestBody CashRegisterDTO cashRegisterDTO) {
         cashRegisterDTO = cashRegisterService.updateCashRegister(id, cashRegisterDTO);
@@ -56,6 +59,7 @@ public class CashRegisterController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить кассу по id",
             description = "В ответе возвращается ничего.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @DeleteMapping("/{id}")
     public void deleteCashRegister(@PathVariable Long id) {
             cashRegisterService.deleteCashRegister(id);

@@ -4,6 +4,7 @@ import com.example.CurrencyExchange.dto.SafetyUserDTO;
 import com.example.CurrencyExchange.dto.UserDTO;
 import com.example.CurrencyExchange.dto.UserRoleDTO;
 import com.example.CurrencyExchange.entities.User;
+import com.example.CurrencyExchange.entities.UserRole;
 import com.example.CurrencyExchange.jwt.JWTCore;
 import com.example.CurrencyExchange.repositories.UserRepository;
 import com.example.CurrencyExchange.utils.mapping.SafetyUserMapper;
@@ -74,6 +75,17 @@ public class UserService {
     }
 
     public String login(UserDTO userDTO) {
+//        User admin = new User();
+//
+//        admin.setName("Админ");
+//        admin.setPhone("92799999999");
+//        admin.setEmail("superadmin@gmail.com");
+//        admin.setPassword(passwordEncoder.encode("111111111"));
+//        admin.setRole(new UserRole());
+//        admin.getRole().setId(13L);
+//
+//        userRepository.save(admin);
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);

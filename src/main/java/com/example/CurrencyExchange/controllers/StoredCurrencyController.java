@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -38,6 +39,7 @@ public class StoredCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Добавить хранимую валюту",
             description = "В ответе возвращается StoredCurrency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PostMapping
     public ResponseEntity<StoredCurrencyDTO> postStoredCurrency(
             @RequestParam Long curId,
@@ -51,6 +53,7 @@ public class StoredCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Обновить информацию о хранимой валюте",
             description = "В ответе возвращается StoredCurrency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PutMapping("/{id}")
     public ResponseEntity<StoredCurrencyDTO> putStoredCurrency(@PathVariable Long id, @RequestBody StoredCurrencyDTO storedCurrencyDTO) {
         storedCurrencyDTO = storedCurrencyService.updateStoredCurrency(id, storedCurrencyDTO);
@@ -60,6 +63,7 @@ public class StoredCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Изменить (прибавить/убавить) количество хранимой валюты",
             description = "В ответе возвращается StoredCurrency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PutMapping("/{id}/change")
     public ResponseEntity<StoredCurrencyDTO> changeCountStoredCurrency(@PathVariable Long id, @RequestParam BigDecimal count, @RequestParam boolean isAdd) {
         StoredCurrencyDTO storedCurrencyDTO = storedCurrencyService.changeCountStoredCurrency(id, count, isAdd);
@@ -69,6 +73,7 @@ public class StoredCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Пересчитать все валюты, в зависимости от их курса в кассе",
             description = "В ответе возвращается список StoredCurrency.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @PutMapping
     public ResponseEntity<List<StoredCurrencyDTO>> recountCurrency(@RequestParam Long cashRegId) {
         List<StoredCurrencyDTO> storedCurrenciesDTO = storedCurrencyService.recountCurrencies(cashRegId);
@@ -78,6 +83,7 @@ public class StoredCurrencyController {
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить хранимую валюту по id",
             description = "В ответе возвращается ничего.")
+    @PreAuthorize("@myPreAuthorizeMethods.isAdmin(authentication.principal.role)")
     @DeleteMapping("/{id}")
     public void deleteStoredCurrency(@PathVariable Long id) {
         storedCurrencyService.deleteStoredCurrency(id);
