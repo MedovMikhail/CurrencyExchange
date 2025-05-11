@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +127,11 @@ public class StoredCurrencyService {
         if (currencyRates == null || currencyRates.size() < currencies.size()) return null;
 
         CurrencyRecountDTO currencyRecountDTO = new CurrencyRecountDTO(currencyRates, storedCurrenciesDTO);
-        kafkaService.sendAndWaitRecountCurrency(currencyRecountDTO, key);
+        storedCurrenciesDTO = kafkaService.sendAndWaitRecountCurrency(currencyRecountDTO, key);
+
+        if (storedCurrenciesDTO == null || storedCurrenciesDTO.size() < currencies.size()) return null;
+
+
 
         return storedCurrenciesDTO;
     }
