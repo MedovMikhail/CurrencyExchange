@@ -65,7 +65,7 @@ public class KafkaService {
         return null;
     }
 
-    public BigDecimal sendAndWaitCurrencyRate(String baseCurrencyCode, String targetCurrencyCode, String key) {
+    public BigDecimal sendAndWaitCurrencyScale(String baseCurrencyCode, String targetCurrencyCode, String key) {
         BigDecimal exchangeRate;
         // создаем объект с кодами валют
         CurrencyCodesMessage codesMessage = new CurrencyCodesMessage(

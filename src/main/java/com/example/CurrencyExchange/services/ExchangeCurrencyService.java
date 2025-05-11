@@ -68,7 +68,7 @@ public class ExchangeCurrencyService {
         // создаем ключ для сообщений в кафке
         String key = new Date().toString();
 
-        BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyRate(
+        BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyScale(
                 baseCurrencyDTO.getCode(),
                 targetCurrencyDTO.getCode(),
                 key
