@@ -54,15 +54,21 @@ public class KafkaService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // отправка сообщение по определенному топику и с ключом
     public void sendMessage(Object message, String topic, @Nullable String key) {
         if (key == null) kafkaSender.sendMessage(message, topic);
         else kafkaSender.sendMessage(message, topic, key);
     }
 
+    // ожидание получения сообщения по топику
     public String waitMessage(String topic, String key) {
+        // создаем консьюмера (слушатель по определенному топику) на время этого метода (потом он выключиться "close")
         try (KafkaConsumer<String, String> consumer = kafkaConsumerListener.getConsumer(topic)) {
+            // ожидаем прихода сообщение 5 секунд
             ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(5000));
+            // просматриваем все сообщения
             for (ConsumerRecord<String, String> record: consumerRecords) {
+                // отбираем сообщение с определенным ключом
                 if (record.key().equals(key)){
                     return record.value();
                 }
@@ -71,6 +77,7 @@ public class KafkaService {
         return null;
     }
 
+    // метод для отправки сообщение в kafka, чтобы получить соотношение валют
     public BigDecimal sendAndWaitCurrencyScale(String baseCurrencyCode, String targetCurrencyCode, String key) {
         BigDecimal exchangeRate;
         // создаем объект с кодами валют
@@ -88,6 +95,7 @@ public class KafkaService {
         return exchangeRate;
     }
 
+    // метод для отправки сообщение в kafka, чтобы получить курс валюты
     public BigDecimal sendAndWaitCurrencyRate(String currencyCode, String key) {
         BigDecimal exchangeRate;
         // отправляем сообщение для с кодами валют, чтобы получить их соотношение
@@ -101,6 +109,7 @@ public class KafkaService {
         return exchangeRate;
     }
 
+    // метод для отправки сообщение в kafka, чтобы получить курсы валют
     public HashMap<String, BigDecimal> sendAndWaitCurrencyRates(List<String> currencyCodes, String key) {
         sendMessage(currencyCodes, sendToCurrencyRates, key);
         String answer = waitMessage(waitCurrencyRates, key);
@@ -112,6 +121,7 @@ public class KafkaService {
         }
     }
 
+    // метод для отправки сообщение в kafka, чтобы получить пересчитанные хранимые валюты
     public List<StoredCurrencyDTO> sendAndWaitRecountCurrency(CurrencyRecountDTO recountDTO, String key) {
         sendMessage(recountDTO, sendToRecountCurrency, key);
         String answer = waitMessage(waitRecountCurrency, key);
@@ -136,6 +146,7 @@ public class KafkaService {
         }
     }
 
+    // метод для отправки сообщение в kafka, чтобы объект обмена валют
     public ExchangedCurrencyDTO sendAndWaitExchangedCurrency(ExchangeValuesDTO exchangeValuesDTO, String key) {
         // отправляем объект со значениями обмена в кафку
         sendMessage(exchangeValuesDTO,sendToExchangeCurrencies, key);

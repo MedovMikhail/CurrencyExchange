@@ -22,15 +22,20 @@ public class JWTCore {
     private int lifetime;
 
     public String generateToken(Authentication authentication) {
+        // получаем пользователя по принциплу (principal = аутентифицированных пользователь)
         User userDetails = (User) authentication.getPrincipal();
+        // маппа информации, которую положим в токен
         HashMap<String, String> payload = new HashMap<>();
+        // добавляем id
         payload.put("id", userDetails.getId().toString());
+        // и роль
         payload.put("role", userDetails.getRole().getName());
+        //собираем токен
         return Jwts.builder().subject(userDetails.getEmail())
                 .claims(payload)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 120L * lifetime))
-                .signWith(generateKey())
+                .issuedAt(new Date(System.currentTimeMillis()))                     // дата создания токена
+                .expiration(new Date(System.currentTimeMillis() + 120L * lifetime)) // дата, когда токен исчерпает себя
+                .signWith(generateKey())                                            // делаем подпись токена
                 .compact();
     }
 

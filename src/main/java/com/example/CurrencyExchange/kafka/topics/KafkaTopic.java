@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
+
+// создание топиков
 @Configuration
 public class KafkaTopic {
     @Value("${kafka.topic.sendToCurrenciesRate}")
