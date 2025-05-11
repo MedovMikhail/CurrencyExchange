@@ -2,13 +2,13 @@ package com.example.CurrencyExchange.services;
 
 import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.dto.ExchangeCurrencyDTO;
+import com.example.CurrencyExchange.dto.StoredCurrencyDTO;
 import com.example.CurrencyExchange.dto.kafka.ExchangeValuesDTO;
 import com.example.CurrencyExchange.dto.kafka.ExchangedCurrencyDTO;
 import com.example.CurrencyExchange.entities.ExchangeCurrency;
 import com.example.CurrencyExchange.kafka.KafkaService;
 import com.example.CurrencyExchange.repositories.ExchangeCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.ExchangeCurrencyMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,12 +76,15 @@ public class ExchangeCurrencyService {
         if (exchangeRate == null) return null;
 
         // получаем количество денег в кассе в обоих валютах
-        BigDecimal baseCashRegisterCount = storedCurrencyService.getStoredCurrencyCountByCodeFromCashRegister(
+        StoredCurrencyDTO baseStoredCurrency = storedCurrencyService.getStoredCurrencyByCodeFromCashRegister(
                 cashRegId, baseCurrencyDTO.getCode()
         );
-        BigDecimal targetCashRegisterCount = storedCurrencyService.getStoredCurrencyCountByCodeFromCashRegister(
+        StoredCurrencyDTO targetStoredCurrency = storedCurrencyService.getStoredCurrencyByCodeFromCashRegister(
                 cashRegId, targetCurrencyDTO.getCode()
         );
+
+        BigDecimal baseCashRegisterCount = baseStoredCurrency.getCount();
+        BigDecimal targetCashRegisterCount = targetStoredCurrency.getCount();
 
         // проверяем хранит ли касса деньги в этих валютах
         if (baseCashRegisterCount == null || targetCashRegisterCount == null) return null;
@@ -98,7 +101,6 @@ public class ExchangeCurrencyService {
         ExchangedCurrencyDTO exchangedCurrencyDTO = kafkaService.sendAndWaitExchangedCurrency(exchangeValuesDTO, key);
         if (exchangedCurrencyDTO == null) return null;
 
-        exchangeCurrencyDTO.setExchangeRate(exchangeRate);
         exchangeCurrencyDTO = exchangeCurrencyMapper.fromExchangedToExchange(exchangeCurrencyDTO, exchangedCurrencyDTO);
         exchangeCurrencyDTO.setUserId(userId);
         exchangeCurrencyDTO.setCashRegisterId(cashRegId);
@@ -113,6 +115,17 @@ public class ExchangeCurrencyService {
                     exchangeCurrency,
                     baseCurrencyDTO.getCode(),
                     targetCurrencyDTO.getCode()
+            );
+
+            storedCurrencyService.changeCountStoredCurrency(
+                    baseStoredCurrency.getId(),
+                    exchangedCurrencyDTO.getBaseStoredCurrencyDiff(),
+                    true
+            );
+            storedCurrencyService.changeCountStoredCurrency(
+                    targetStoredCurrency.getId(),
+                    exchangedCurrencyDTO.getTargetStoredCurrencyDiff(),
+                    false
             );
             return exchangeCurrencyDTO;
         } catch (RuntimeException e) {
