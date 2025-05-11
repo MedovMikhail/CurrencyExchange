@@ -5,11 +5,14 @@ import com.example.CurrencyExchange.services.ExchangeCurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,6 +36,25 @@ public class ExchangeCurrencyController {
     @GetMapping("/page")
     public List<ExchangeCurrencyDTO> getAllPagingExchangeCurrencies(@RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize) {
         return exchangeCurrencyService.getExchangeCurrencies(pageNumber, pageSize);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить все операции по обмену валюты конкретных валют",
+            description = "В ответе возвращается список ExchangeCurrency.")
+    @GetMapping("/baseCode/{baseCode}/targetCode/{targetCode}")
+    public List<ExchangeCurrencyDTO> getAllExchangeCurrenciesByBaseAndTargetCode(@PathVariable(required = false) String baseCode, @PathVariable(required = false) String targetCode) {
+        return exchangeCurrencyService.getExchangeCurrenciesByBaseAndTargetCurrencyCode(baseCode, targetCode);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить все операции по обмену валюты в определенном интервале времени",
+            description = "В ответе возвращается список ExchangeCurrency.")
+    @GetMapping("/startDate/{startDate}/endDate/{endDate}")
+    public List<ExchangeCurrencyDTO> getAllExchangeCurrenciesByDate(
+            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate
+    ) {
+        return exchangeCurrencyService.getExchangeCurrenciesByDate(startDate, endDate);
     }
 
     @SecurityRequirement(name = "JWT")

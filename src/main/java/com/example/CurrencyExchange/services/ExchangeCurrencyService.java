@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -44,9 +46,31 @@ public class ExchangeCurrencyService {
                 .toList();
     }
 
-    public List<ExchangeCurrencyDTO> getExchangeCurrencies(int pageNumber, int pageSize){
+    public List<ExchangeCurrencyDTO> getExchangeCurrencies(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
         return exchangeCurrencyRepository.findAll(pageable)
+                .stream()
+                .map(exchangeCurrencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<ExchangeCurrencyDTO> getExchangeCurrenciesByBaseAndTargetCurrencyCode(String baseCode, String targetCode) {
+        if (baseCode == null) baseCode = "";
+        if (targetCode == null) targetCode = "";
+        baseCode = baseCode.strip();
+        targetCode = targetCode.strip();
+        return exchangeCurrencyRepository.findByBaseCurrencyCodeContainingIgnoreCaseAndTargetCurrencyCodeContainingIgnoreCase(
+                baseCode, targetCode)
+                .stream()
+                .map(exchangeCurrencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<ExchangeCurrencyDTO> getExchangeCurrenciesByDate(Date startDate, Date endDate) {
+        ZonedDateTime startZonedDateTime = startDate.toInstant().atZone(ZoneId.of("Europe/Moscow"));
+        ZonedDateTime endZonedDateTime = endDate.toInstant().atZone(ZoneId.of("Europe/Moscow"));
+        return exchangeCurrencyRepository.findAllByDateOfExchangeBetween(
+                startZonedDateTime, endZonedDateTime)
                 .stream()
                 .map(exchangeCurrencyMapper::fromEntityToDTO)
                 .toList();
