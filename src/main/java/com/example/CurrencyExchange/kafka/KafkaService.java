@@ -1,5 +1,6 @@
 package com.example.CurrencyExchange.kafka;
 
+import com.example.CurrencyExchange.dto.StoredCurrencyDTO;
 import com.example.CurrencyExchange.dto.kafka.CurrencyCodesMessage;
 import com.example.CurrencyExchange.dto.kafka.CurrencyRecountDTO;
 import com.example.CurrencyExchange.dto.kafka.ExchangeValuesDTO;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -110,14 +112,14 @@ public class KafkaService {
         }
     }
 
-    public CurrencyRecountDTO sendAndWaitRecountCurrency(CurrencyRecountDTO recountDTO, String key) {
+    public List<StoredCurrencyDTO> sendAndWaitRecountCurrency(CurrencyRecountDTO recountDTO, String key) {
         sendMessage(recountDTO, sendToRecountCurrency, key);
         String answer = waitMessage(waitRecountCurrency, key);
 
         if (answer == null) return null;
 
         try {
-            return objectMapper.readValue(answer, CurrencyRecountDTO.class);
+            return objectMapper.readValue(answer, ArrayList.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
