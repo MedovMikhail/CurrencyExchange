@@ -44,7 +44,7 @@ public class StoredCurrencyController {
             @RequestParam Long cashRegId,
             @RequestBody StoredCurrencyDTO storedCurrencyDTO
     ) {
-        storedCurrencyDTO = storedCurrencyService.createStoredCurrency(curId, cashRegId, storedCurrencyDTO);
+        storedCurrencyDTO = storedCurrencyService.addStoredCurrency(curId, cashRegId, storedCurrencyDTO);
         return storedCurrencyDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrencyDTO);
     }
 

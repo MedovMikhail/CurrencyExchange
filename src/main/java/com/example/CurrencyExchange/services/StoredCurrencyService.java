@@ -42,12 +42,11 @@ public class StoredCurrencyService {
         );
     }
 
-    public StoredCurrencyDTO createStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
+    public StoredCurrencyDTO addStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
         if (currencyService.getCurrency(curId) == null || registerService.getCashRegister(cashRegId) == null) return null;
 
-        storedCurrencyDTO.setCurrencyId(curId);
         storedCurrencyDTO.setCashRegisterId(cashRegId);
-        StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO);
+        StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO, curId);
         try {
             storedCurrency = storedCurrencyRepository.save(storedCurrency);
         }
@@ -75,10 +74,12 @@ public class StoredCurrencyService {
         if (storedCurrency == null) return null;
 
         if (isAdd) {
+            // добавляем к текущему количеству валюты
             storedCurrency.setCount(
                     storedCurrency.getCount().add(count)
             );
         } else {
+            // убавляем от текущего количества валюты
             storedCurrency.setCount(
                     storedCurrency.getCount().subtract(count)
             );

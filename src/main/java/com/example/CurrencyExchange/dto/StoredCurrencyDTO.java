@@ -13,6 +13,6 @@ public class StoredCurrencyDTO {
 
     private Long id;
     private BigDecimal count;
-    private Long currencyId;
+    private String currencyCode;
     private Long cashRegisterId;
 }

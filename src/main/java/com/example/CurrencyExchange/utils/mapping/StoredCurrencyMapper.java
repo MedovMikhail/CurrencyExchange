@@ -9,14 +9,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurrencyDTO> {
 
+    @Deprecated
     @Override
     public StoredCurrency fromDTOToEntity(StoredCurrencyDTO from) {
         if (from == null) return null;
         StoredCurrency to = new StoredCurrency();
         to.setId(from.getId());
         to.setCount(from.getCount());
+        to.setCashRegister(new CashRegister());
+        to.getCashRegister().setId(from.getCashRegisterId());
+        return to;
+    }
+
+    public StoredCurrency fromDTOToEntity(StoredCurrencyDTO from, Long currencyId) {
+        if (from == null) return null;
+        StoredCurrency to = new StoredCurrency();
+        to.setId(from.getId());
+        to.setCount(from.getCount());
         to.setCurrency(new Currency());
-        to.getCurrency().setId(from.getCurrencyId());
+        to.getCurrency().setId(currencyId);
         to.setCashRegister(new CashRegister());
         to.getCashRegister().setId(from.getCashRegisterId());
         return to;
@@ -28,7 +39,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
         StoredCurrencyDTO to = new StoredCurrencyDTO();
         to.setId(from.getId());
         to.setCount(from.getCount());
-        to.setCurrencyId(from.getCurrency().getId());
+        to.setCurrencyCode(from.getCurrency().getCode());
         to.setCashRegisterId(from.getCashRegister().getId());
         return to;
     }
