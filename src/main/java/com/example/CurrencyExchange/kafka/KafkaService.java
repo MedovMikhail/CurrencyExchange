@@ -119,7 +119,18 @@ public class KafkaService {
         if (answer == null) return null;
 
         try {
-            return objectMapper.readValue(answer, ArrayList.class);
+            List<Object> objectList = objectMapper.readValue(answer, ArrayList.class);
+            return objectList
+                    .stream()
+                    .map(x -> {
+                        try {
+                            String s = objectMapper.writeValueAsString(x);
+                            return objectMapper.readValue(s, StoredCurrencyDTO.class);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
