@@ -65,6 +65,7 @@ public class ExchangeCurrencyMapper {
                 from.getTargetStoredCurrencyDiff()
         );
         to.setDateOfExchange(from.getDateOfExchange());
+        to.setExchangeRate(from.getExchangeRate());
         return to;
     }
 }
