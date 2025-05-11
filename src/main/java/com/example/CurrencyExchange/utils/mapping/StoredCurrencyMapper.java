@@ -16,6 +16,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
         StoredCurrency to = new StoredCurrency();
         to.setId(from.getId());
         to.setCount(from.getCount());
+        to.setExchangeRate(from.getExchangeRate());
         to.setCashRegister(new CashRegister());
         to.getCashRegister().setId(from.getCashRegisterId());
         return to;
@@ -26,6 +27,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
         StoredCurrency to = new StoredCurrency();
         to.setId(from.getId());
         to.setCount(from.getCount());
+        to.setExchangeRate(from.getExchangeRate());
         to.setCurrency(new Currency());
         to.getCurrency().setId(currencyId);
         to.setCashRegister(new CashRegister());
@@ -39,6 +41,7 @@ public class StoredCurrencyMapper implements Mapper<StoredCurrency, StoredCurren
         StoredCurrencyDTO to = new StoredCurrencyDTO();
         to.setId(from.getId());
         to.setCount(from.getCount());
+        to.setExchangeRate(from.getExchangeRate());
         to.setCurrencyCode(from.getCurrency().getCode());
         to.setCashRegisterId(from.getCashRegister().getId());
         return to;

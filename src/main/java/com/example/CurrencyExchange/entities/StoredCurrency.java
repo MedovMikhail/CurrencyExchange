@@ -22,6 +22,9 @@ public class StoredCurrency {
     @Column(nullable = false, scale = 3, precision = 38)
     private BigDecimal count;
 
+    @Column(nullable = false, scale = 8, precision = 38)
+    private BigDecimal exchangeRate;
+
     @ManyToOne(targetEntity = Currency.class, fetch = FetchType.LAZY)
     @JoinColumn(name="currency_id")
     private Currency currency;
