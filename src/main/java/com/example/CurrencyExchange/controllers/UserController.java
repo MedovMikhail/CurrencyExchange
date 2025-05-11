@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<SafetyUserDTO>> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить страницу пользователей",
+            description = "В ответе возвращается список User.")
+    @GetMapping("/page")
+    public ResponseEntity<List<SafetyUserDTO>> getPagingUsers(@RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize) {
+        return ResponseEntity.ok(userService.getUsers(pageNumber, pageSize));
     }
 
     @SecurityRequirement(name = "JWT")

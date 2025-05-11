@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,14 @@ public class UserRoleController {
     @GetMapping
     public List<UserRoleDTO> getUserRoles() {
         return userRoleService.getUserRoles();
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить страницу пользовательских ролей",
+            description = "В ответе возвращается список UserRole.")
+    @GetMapping("/page")
+    public List<UserRoleDTO> getPagingUserRoles(@RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize) {
+        return userRoleService.getUserRoles(pageNumber, pageSize);
     }
 
     @SecurityRequirement(name = "JWT")

@@ -6,6 +6,9 @@ import com.example.CurrencyExchange.repositories.CurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.CurrencyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +22,15 @@ public class CurrencyService {
     private CurrencyRepository currencyRepository;
 
     public List<CurrencyDTO> getCurrencies() {
-        return currencyRepository.findAll()
+        return currencyRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(currencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<CurrencyDTO> getCurrencies(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return currencyRepository.findAll(pageable)
                 .stream()
                 .map(currencyMapper::fromEntityToDTO)
                 .toList();

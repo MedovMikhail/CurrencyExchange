@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,14 @@ public class CashRegisterController {
     @GetMapping
     public List<CashRegisterDTO> getCashRegisters() {
         return cashRegisterService.getCashRegisters();
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить страницу с кассами",
+            description = "В ответе возвращается список CashRegister.")
+    @GetMapping("/page")
+    public List<CashRegisterDTO> getPagingCashRegisters(@RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize) {
+        return cashRegisterService.getCashRegisters(pageNumber, pageSize);
     }
 
     @SecurityRequirement(name = "JWT")

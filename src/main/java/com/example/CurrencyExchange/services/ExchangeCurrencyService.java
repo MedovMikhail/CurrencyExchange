@@ -10,6 +10,9 @@ import com.example.CurrencyExchange.kafka.KafkaService;
 import com.example.CurrencyExchange.repositories.ExchangeCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.ExchangeCurrencyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,7 +38,15 @@ public class ExchangeCurrencyService {
     private KafkaService kafkaService;
 
     public List<ExchangeCurrencyDTO> getExchangeCurrencies(){
-        return exchangeCurrencyRepository.findAll()
+        return exchangeCurrencyRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(exchangeCurrencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<ExchangeCurrencyDTO> getExchangeCurrencies(int pageNumber, int pageSize){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return exchangeCurrencyRepository.findAll(pageable)
                 .stream()
                 .map(exchangeCurrencyMapper::fromEntityToDTO)
                 .toList();

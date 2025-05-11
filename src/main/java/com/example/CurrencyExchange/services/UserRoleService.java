@@ -6,6 +6,9 @@ import com.example.CurrencyExchange.repositories.UserRoleRepository;
 import com.example.CurrencyExchange.utils.mapping.UserRoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +22,15 @@ public class UserRoleService {
     private UserRoleRepository userRoleRepository;
 
     public List<UserRoleDTO> getUserRoles() {
-        return userRoleRepository.findAll()
+        return userRoleRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(userRoleMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<UserRoleDTO> getUserRoles(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return userRoleRepository.findAll(pageable)
                 .stream()
                 .map(userRoleMapper::fromEntityToDTO)
                 .toList();

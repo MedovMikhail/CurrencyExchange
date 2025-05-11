@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -25,6 +26,16 @@ public class StoredCurrencyController {
     @GetMapping
     public ResponseEntity<List<StoredCurrencyDTO>> getStoredCurrencies() {
         return ResponseEntity.ok(storedCurrencyService.getStoredCurrencies());
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить страницу со списком хранимых валют",
+            description = "В ответе возвращается список StoredCurrency.")
+    @GetMapping("/page")
+    public ResponseEntity<List<StoredCurrencyDTO>> getPagingStoredCurrencies(
+            @RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize
+    ) {
+        return ResponseEntity.ok(storedCurrencyService.getStoredCurrencies(pageNumber, pageSize));
     }
 
     @SecurityRequirement(name = "JWT")

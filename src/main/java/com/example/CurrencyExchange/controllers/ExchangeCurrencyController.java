@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,14 @@ public class ExchangeCurrencyController {
     @GetMapping
     public List<ExchangeCurrencyDTO> getAllExchangeCurrencies() {
         return exchangeCurrencyService.getExchangeCurrencies();
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Запросить список страницы с операциями по обмену валюты",
+            description = "В ответе возвращается список ExchangeCurrency.")
+    @GetMapping("/page")
+    public List<ExchangeCurrencyDTO> getAllPagingExchangeCurrencies(@RequestParam @Validated int pageNumber, @RequestParam @Validated int pageSize) {
+        return exchangeCurrencyService.getExchangeCurrencies(pageNumber, pageSize);
     }
 
     @SecurityRequirement(name = "JWT")

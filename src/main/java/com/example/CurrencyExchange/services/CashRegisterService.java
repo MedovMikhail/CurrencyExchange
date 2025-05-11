@@ -6,6 +6,9 @@ import com.example.CurrencyExchange.repositories.CashRegisterRepository;
 import com.example.CurrencyExchange.utils.mapping.CashRegisterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +22,16 @@ public class CashRegisterService {
     private CashRegisterRepository cashRegisterRepository;
 
     public List<CashRegisterDTO> getCashRegisters() {
-        return cashRegisterRepository.findAll().stream()
+        return cashRegisterRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(cashRegisterMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<CashRegisterDTO> getCashRegisters(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return cashRegisterRepository.findAll(pageable)
+                .stream()
                 .map(cashRegisterMapper::fromEntityToDTO)
                 .toList();
     }

@@ -12,6 +12,9 @@ import com.example.CurrencyExchange.utils.mapping.UserMapper;
 import com.example.CurrencyExchange.utils.mapping.UserRoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,7 +45,15 @@ public class UserService {
     private UserRoleMapper userRoleMapper;
 
     public List<SafetyUserDTO> getUsers(){
-        return userRepository.findAll()
+        return userRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(safetyUserMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<SafetyUserDTO> getUsers(int pageNumber, int pageSize){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return userRepository.findAll(pageable)
                 .stream()
                 .map(safetyUserMapper::fromEntityToDTO)
                 .toList();
@@ -75,17 +86,6 @@ public class UserService {
     }
 
     public String login(UserDTO userDTO) {
-//        User admin = new User();
-//
-//        admin.setName("Админ");
-//        admin.setPhone("92799999999");
-//        admin.setEmail("superadmin@gmail.com");
-//        admin.setPassword(passwordEncoder.encode("111111111"));
-//        admin.setRole(new UserRole());
-//        admin.getRole().setId(13L);
-//
-//        userRepository.save(admin);
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);

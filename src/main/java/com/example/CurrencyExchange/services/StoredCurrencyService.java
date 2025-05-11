@@ -10,6 +10,9 @@ import com.example.CurrencyExchange.utils.mapping.StoredCurrencyMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,7 +38,15 @@ public class StoredCurrencyService {
     private ObjectMapper objectMapper;
 
     public List<StoredCurrencyDTO> getStoredCurrencies() {
-        return storedCurrencyRepository.findAllByOrderById()
+        return storedCurrencyRepository.findAll(Sort.by("id"))
+                .stream()
+                .map(storedCurrencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<StoredCurrencyDTO> getStoredCurrencies(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
+        return storedCurrencyRepository.findAll(pageable)
                 .stream()
                 .map(storedCurrencyMapper::fromEntityToDTO)
                 .toList();
