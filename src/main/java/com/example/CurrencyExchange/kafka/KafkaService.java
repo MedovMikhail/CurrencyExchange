@@ -28,6 +28,10 @@ public class KafkaService {
     private String sendToCurrenciesRate;
     @Value("${kafka.topic.waitCurrenciesRate}")
     private String waitCurrenciesRate;
+    @Value("${kafka.topic.sendToCurrenciesScale}")
+    private String sendToCurrenciesScale;
+    @Value("${kafka.topic.waitCurrenciesScale}")
+    private String waitCurrenciesScale;
     @Value("${kafka.topic.sendToExchangeCurrencies}")
     private String sendToExchangeCurrencies;
     @Value("${kafka.topic.waitExchangeCurrencies}")
@@ -72,7 +76,20 @@ public class KafkaService {
                 baseCurrencyCode, targetCurrencyCode
         );
         // отправляем сообщение для с кодами валют, чтобы получить их соотношение
-        sendMessage(codesMessage, sendToCurrenciesRate, key);
+        sendMessage(codesMessage, sendToCurrenciesScale, key);
+        // ожидаем получения сообщения с соотношением валют
+        String answer = waitMessage(waitCurrenciesScale, key);
+
+        if (answer == null) return null;
+
+        exchangeRate = new BigDecimal(answer);
+        return exchangeRate;
+    }
+
+    public BigDecimal sendAndWaitCurrencyRate(String currencyCode, String key) {
+        BigDecimal exchangeRate;
+        // отправляем сообщение для с кодами валют, чтобы получить их соотношение
+        sendMessage(currencyCode, sendToCurrenciesRate, key);
         // ожидаем получения сообщения с соотношением валют
         String answer = waitMessage(waitCurrenciesRate, key);
 
