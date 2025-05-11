@@ -24,7 +24,7 @@ public class StoredCurrencyService {
     private CashRegisterService registerService;
 
     public List<StoredCurrencyDTO> getStoredCurrencies() {
-        return storedCurrencyRepository.findAll()
+        return storedCurrencyRepository.findAllByOrderById()
                 .stream()
                 .map(storedCurrencyMapper::fromEntityToDTO)
                 .toList();
@@ -36,8 +36,10 @@ public class StoredCurrencyService {
         );
     }
 
-    public BigDecimal getStoredCurrencyCountByCodeFromCashRegister(Long cashRegId, String code) {
-        return storedCurrencyRepository.getStoredCurrencyCountByCode(cashRegId, code);
+    public StoredCurrencyDTO getStoredCurrencyByCodeFromCashRegister(Long cashRegId, String code) {
+        return storedCurrencyMapper.fromEntityToDTO(
+                storedCurrencyRepository.getStoredCurrencyByCode(cashRegId, code).orElse(null)
+        );
     }
 
     public StoredCurrencyDTO createStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {

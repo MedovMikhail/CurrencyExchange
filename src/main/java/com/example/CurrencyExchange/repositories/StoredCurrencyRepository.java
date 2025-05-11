@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StoredCurrencyRepository extends JpaRepository<StoredCurrency, Long> {
 
-    @Query(value = "select sc.count from StoredCurrency as sc where sc.cashRegister.id = :cashRegisterId and sc.currency.code = :code")
-    BigDecimal getStoredCurrencyCountByCode(@Param(value="cashRegisterId") Long cashRegisterId, @Param(value="code") String code);
+    List<StoredCurrency> findAllByOrderById();
+
+    @Query(value = "select sc from StoredCurrency as sc where sc.cashRegister.id = :cashRegisterId and sc.currency.code = :code")
+    Optional<StoredCurrency> getStoredCurrencyByCode(@Param(value="cashRegisterId") Long cashRegisterId, @Param(value="code") String code);
 }
