@@ -7,6 +7,7 @@ import com.example.CurrencyExchange.entities.StoredCurrency;
 import com.example.CurrencyExchange.kafka.KafkaService;
 import com.example.CurrencyExchange.repositories.StoredCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.StoredCurrencyMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class StoredCurrencyService {
     private CashRegisterService registerService;
     @Autowired
     private KafkaService kafkaService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public List<StoredCurrencyDTO> getStoredCurrencies() {
         return storedCurrencyRepository.findAllByOrderById()
@@ -131,9 +134,21 @@ public class StoredCurrencyService {
 
         if (storedCurrenciesDTO == null || storedCurrenciesDTO.size() < currencies.size()) return null;
 
+        List<StoredCurrency> storedCurrencyIterable = new ArrayList<>();
+        for (StoredCurrencyDTO dto: storedCurrenciesDTO) {
+            storedCurrencyIterable.add(
+                    storedCurrencyMapper.fromDTOToEntity(dto)
+            );
+        }
 
+        List<StoredCurrency> storedCurrencies = storedCurrencyRepository.saveAll(
+                storedCurrencyIterable
+        );
 
-        return storedCurrenciesDTO;
+        return storedCurrencies
+                .stream()
+                .map(storedCurrencyMapper::fromEntityToDTO)
+                .toList();
     }
     
     public void deleteStoredCurrency(Long id) {
