@@ -49,15 +49,6 @@ public class ExchangeCurrencyController {
     }
 
     @SecurityRequirement(name = "JWT")
-    @Operation(summary = "Обновить информацию об операции по обмену валюты",
-            description = "В ответе возвращается ExchangeCurrency.")
-    @PutMapping("/{id}")
-    public ResponseEntity<ExchangeCurrencyDTO> putExchangeCurrency(@PathVariable Long id, @RequestBody BigDecimal baseCurCount) {
-        ExchangeCurrencyDTO exchangeCurrencyDTO = exchangeCurrencyService.updateExchangeCurrency(id, baseCurCount);
-        return exchangeCurrencyDTO == null ? ResponseEntity.badRequest().build(): ResponseEntity.ok(exchangeCurrencyDTO);
-    }
-
-    @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить операцию по обмену валюты",
             description = "В ответе возвращается ничего.")
     @DeleteMapping("/{id}")

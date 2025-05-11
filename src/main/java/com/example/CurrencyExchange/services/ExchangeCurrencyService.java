@@ -133,21 +133,6 @@ public class ExchangeCurrencyService {
         }
     }
 
-    public ExchangeCurrencyDTO updateExchangeCurrency(Long id, BigDecimal countBaseCash) {
-        ExchangeCurrency exchangeCurrency = exchangeCurrencyRepository.findById(id).orElse(null);
-
-        if (exchangeCurrency == null) return null;
-
-        exchangeCurrency.setCountBaseCash(countBaseCash);
-
-        try {
-            exchangeCurrency = exchangeCurrencyRepository.save(exchangeCurrency);
-        } catch (RuntimeException e) {
-            return null;
-        }
-        return exchangeCurrencyMapper.fromEntityToDTO(exchangeCurrency);
-    }
-
     public void deleteExchangeCurrency(Long id) {
         exchangeCurrencyRepository.deleteById(id);
     }
