@@ -4,6 +4,7 @@ import com.example.CurrencyExchange.dto.ExchangeCurrencyDTO;
 import com.example.CurrencyExchange.services.ExchangeCurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 
+@Tag(name = "Обмены валют")
 @RestController
 @RequestMapping("/exchange-currencies")
 public class ExchangeCurrencyController {
