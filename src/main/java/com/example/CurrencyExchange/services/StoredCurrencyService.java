@@ -72,14 +72,17 @@ public class StoredCurrencyService {
         );
     }
 
+    // добавляем новую хранимую валюту в кассу
     public StoredCurrencyDTO addStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
         CurrencyDTO currencyDTO = currencyService.getCurrency(curId);
+        // проверяем существует ли валюта и касса по их id
         if (currencyDTO == null || registerService.getCashRegister(cashRegId) == null) return null;
 
+        // отправляем в kafka сообщение с кодом валюты и ожидаем получения её курса
         BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyRate(currencyDTO.getCode(), new Date().toString());
-
+        // что-то пошло не так
         if (exchangeRate == null) return null;
-
+        // заполняем поля хранимой валюты
         storedCurrencyDTO.setCashRegisterId(cashRegId);
         storedCurrencyDTO.setExchangeRate(exchangeRate);
         StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO, curId);
@@ -93,9 +96,11 @@ public class StoredCurrencyService {
     }
 
     public StoredCurrencyDTO updateStoredCurrency(Long id, StoredCurrencyDTO storedCurrencyDTO) {
+        // проверяем существует ли хранимая валюта по id
         StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
         if (storedCurrency == null) return null;
 
+        // устанавливаем новое количество валюты в кассе
         storedCurrency.setCount(storedCurrencyDTO.getCount());
         try {
             storedCurrency = storedCurrencyRepository.save(storedCurrency);
@@ -105,7 +110,9 @@ public class StoredCurrencyService {
         }
     }
 
+    // изменяем количество валюты в кассе на count, если isAdd true, то прибавляем, если false, то убавляем
     public StoredCurrencyDTO changeCountStoredCurrency(Long id, BigDecimal count, boolean isAdd) {
+        // проверяем существует ли хранимая валюта по id
         StoredCurrency storedCurrency = storedCurrencyRepository.findById(id).orElse(null);
         if (storedCurrency == null) return null;
 
@@ -129,22 +136,29 @@ public class StoredCurrencyService {
         }
     }
 
+    // пересчет валюты в кассе в соответствии с актуальным курсом
     public List<StoredCurrencyDTO> recountCurrencies(Long cashRegId) {
+        // получаем список хранимой валюты в кассе
         List<StoredCurrencyDTO> storedCurrenciesDTO = getStoredCurrenciesByCashRegister(cashRegId);
         if (storedCurrenciesDTO == null) return null;
+        // получаем список кодов валют, которые хранятся в кассе
         List<String> currencies = storedCurrenciesDTO
                 .stream()
                 .map(StoredCurrencyDTO::getCurrencyCode)
                 .toList();
         String key = new Date().toString();
+        // отправляем сообщение в kafka и ожидаем получения маппы с кодами и их актуальными курсами
         HashMap<String, BigDecimal> currencyRates = kafkaService.sendAndWaitCurrencyRates(currencies, key);
         if (currencyRates == null || currencyRates.size() < currencies.size()) return null;
 
         CurrencyRecountDTO currencyRecountDTO = new CurrencyRecountDTO(currencyRates, storedCurrenciesDTO);
+        // отправляем сообщение в kafka и ожидаем получения пересчитанных хранимых валют
         storedCurrenciesDTO = kafkaService.sendAndWaitRecountCurrency(currencyRecountDTO, key);
 
+        // проверяем все ли валюты вернулись к нам
         if (storedCurrenciesDTO == null || storedCurrenciesDTO.size() < currencies.size()) return null;
 
+        // преобразовываем dto в сущности
         List<StoredCurrency> storedCurrencyIterable = new ArrayList<>();
         for (StoredCurrencyDTO dto: storedCurrenciesDTO) {
             storedCurrencyIterable.add(
@@ -152,6 +166,7 @@ public class StoredCurrencyService {
             );
         }
 
+        // сохраняем все пересчитанные хранимые валюты в базу
         List<StoredCurrency> storedCurrencies = storedCurrencyRepository.saveAll(
                 storedCurrencyIterable
         );

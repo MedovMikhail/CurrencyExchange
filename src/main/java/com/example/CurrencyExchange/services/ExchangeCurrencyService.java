@@ -55,8 +55,10 @@ public class ExchangeCurrencyService {
     }
 
     public List<ExchangeCurrencyDTO> getExchangeCurrenciesByBaseAndTargetCurrencyCode(String baseCode, String targetCode) {
+        // если какого-то параметра нет, то присваиваем ему пустую строку
         if (baseCode == null) baseCode = "";
         if (targetCode == null) targetCode = "";
+        // убираем пробелы
         baseCode = baseCode.strip();
         targetCode = targetCode.strip();
         return exchangeCurrencyRepository.findByBaseCurrencyCodeContainingIgnoreCaseAndTargetCurrencyCodeContainingIgnoreCase(
@@ -67,6 +69,7 @@ public class ExchangeCurrencyService {
     }
 
     public List<ExchangeCurrencyDTO> getExchangeCurrenciesByDate(Date startDate, Date endDate) {
+        // конвертируем date в zonedDateTime для московского региона
         ZonedDateTime startZonedDateTime = startDate.toInstant().atZone(ZoneId.of("Europe/Moscow"));
         ZonedDateTime endZonedDateTime = endDate.toInstant().atZone(ZoneId.of("Europe/Moscow"));
         return exchangeCurrencyRepository.findAllByDateOfExchangeBetween(
@@ -82,6 +85,7 @@ public class ExchangeCurrencyService {
         );
     }
 
+    // добавление обмена валют
     public ExchangeCurrencyDTO addExchangeCurrency(
             Long userId, Long cashRegId,
             ExchangeCurrencyDTO exchangeCurrencyDTO
@@ -103,11 +107,13 @@ public class ExchangeCurrencyService {
         // создаем ключ для сообщений в кафке
         String key = new Date().toString();
 
+        // отправляем в кафку сообщение с курсами валют и ожидаем получения их соотношения
         BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyScale(
                 baseCurrencyDTO.getCode(),
                 targetCurrencyDTO.getCode(),
                 key
         );
+        // сообщение обратно не пришло
         if (exchangeRate == null) return null;
 
         // получаем количество денег в кассе в обоих валютах
@@ -136,6 +142,7 @@ public class ExchangeCurrencyService {
         ExchangedCurrencyDTO exchangedCurrencyDTO = kafkaService.sendAndWaitExchangedCurrency(exchangeValuesDTO, key);
         if (exchangedCurrencyDTO == null) return null;
 
+        // заполняем поля обмена валют
         exchangeCurrencyDTO = exchangeCurrencyMapper.fromExchangedToExchange(exchangeCurrencyDTO, exchangedCurrencyDTO);
         exchangeCurrencyDTO.setUserId(userId);
         exchangeCurrencyDTO.setCashRegisterId(cashRegId);
@@ -145,13 +152,16 @@ public class ExchangeCurrencyService {
         );
 
         try {
+            // пытаемся сохранить обмен в базе
             exchangeCurrency = exchangeCurrencyRepository.save(exchangeCurrency);
+            // получаем dto от сущности
             exchangeCurrencyDTO = exchangeCurrencyMapper.fromEntityToDTO(
                     exchangeCurrency,
                     baseCurrencyDTO.getCode(),
                     targetCurrencyDTO.getCode()
             );
 
+            // вносим изменения в хранимые валюты кассы
             storedCurrencyService.changeCountStoredCurrency(
                     baseStoredCurrency.getId(),
                     exchangedCurrencyDTO.getBaseStoredCurrencyDiff(),

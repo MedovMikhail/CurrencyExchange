@@ -61,6 +61,7 @@ public class CurrencyService {
     }
 
     public CurrencyDTO updateCurrency(Long id, CurrencyDTO currencyDTO) {
+        // проверяем существует ли валюта с таким id
         if (currencyRepository.findById(id).isEmpty()) return null;
         currencyDTO.setId(id);
         currencyDTO.setCode(currencyDTO.getCode().toUpperCase());

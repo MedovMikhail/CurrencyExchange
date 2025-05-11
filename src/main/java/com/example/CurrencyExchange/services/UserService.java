@@ -63,7 +63,9 @@ public class UserService {
         return safetyUserMapper.fromEntityToDTO(userRepository.findById(id).orElse(null));
     }
 
+    // регистрация
     public String register(UserDTO userDTO) {
+        // проверяем существуют ли пользователи с такой же почтой, именем и телефонным номером
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent() ||
             userRepository.findByName(userDTO.getName()).isPresent() ||
             userRepository.findByPhone(userDTO.getPhone()).isPresent()
@@ -74,10 +76,12 @@ public class UserService {
                 passwordEncoder.encode(user.getPassword())
         );
 
+        // ставим пользователю роль "user"
         UserRoleDTO userRoleDTO = userRoleService.getUserRole("user");
         user.setRole(userRoleMapper.fromDTOToEntity(userRoleDTO));
 
         userRepository.save(user);
+        // аутентифицируемся в системе по почте и паролю
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword())
         );
@@ -85,7 +89,9 @@ public class UserService {
         return jwtCore.generateToken(authentication);
     }
 
+    // входим в систему
     public String login(UserDTO userDTO) {
+        // аутентифицируемся в системе по почте и паролю
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);

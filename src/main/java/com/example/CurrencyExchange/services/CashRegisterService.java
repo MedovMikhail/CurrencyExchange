@@ -37,12 +37,16 @@ public class CashRegisterService {
     }
 
     public CashRegisterDTO getCashRegister(Long id) {
-        return cashRegisterMapper.fromEntityToDTO(cashRegisterRepository.findById(id).orElse(null));
+        return cashRegisterMapper.fromEntityToDTO(
+                cashRegisterRepository.findById(id).orElse(null)
+        );
     }
 
+    // добавить новую кассу
     public CashRegisterDTO addCashRegister(CashRegisterDTO cashRegisterDto) {
         CashRegister cashRegister = cashRegisterMapper.fromDTOToEntity(cashRegisterDto);
         try{
+            // пытаемся сохранить
             cashRegister = cashRegisterRepository.save(cashRegister);
         } catch (DataIntegrityViolationException e) {
             return null;
@@ -51,6 +55,7 @@ public class CashRegisterService {
     }
 
     public CashRegisterDTO updateCashRegister(Long id, CashRegisterDTO cashRegisterDto) {
+        // проверяем существует ли касса с таким id
         if (cashRegisterRepository.findById(id).isEmpty()) return null;
         cashRegisterDto.setId(id);
         CashRegister cashRegister = cashRegisterMapper.fromDTOToEntity(cashRegisterDto);
