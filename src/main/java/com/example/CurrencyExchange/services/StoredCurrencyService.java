@@ -1,5 +1,6 @@
 package com.example.CurrencyExchange.services;
 
+import com.example.CurrencyExchange.dto.CurrencyDTO;
 import com.example.CurrencyExchange.dto.StoredCurrencyDTO;
 import com.example.CurrencyExchange.dto.kafka.CurrencyRecountDTO;
 import com.example.CurrencyExchange.entities.StoredCurrency;
@@ -57,9 +58,15 @@ public class StoredCurrencyService {
     }
 
     public StoredCurrencyDTO addStoredCurrency(Long curId, Long cashRegId, StoredCurrencyDTO storedCurrencyDTO) {
-        if (currencyService.getCurrency(curId) == null || registerService.getCashRegister(cashRegId) == null) return null;
+        CurrencyDTO currencyDTO = currencyService.getCurrency(curId);
+        if (currencyDTO == null || registerService.getCashRegister(cashRegId) == null) return null;
+
+        BigDecimal exchangeRate = kafkaService.sendAndWaitCurrencyRate(currencyDTO.getCode(), new Date().toString());
+
+        if (exchangeRate == null) return null;
 
         storedCurrencyDTO.setCashRegisterId(cashRegId);
+        storedCurrencyDTO.setExchangeRate(exchangeRate);
         StoredCurrency storedCurrency = storedCurrencyMapper.fromDTOToEntity(storedCurrencyDTO, curId);
         try {
             storedCurrency = storedCurrencyRepository.save(storedCurrency);
