@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface StoredCurrencyRepository extends JpaRepository<StoredCurrency, Long> {
 
     List<StoredCurrency> findAllByOrderById();
+    List<StoredCurrency> findByCashRegisterId(Long cashRegisterId);
 
     @Query(value = "select sc from StoredCurrency as sc where sc.cashRegister.id = :cashRegisterId and sc.currency.code = :code")
     Optional<StoredCurrency> getStoredCurrencyByCode(@Param(value="cashRegisterId") Long cashRegisterId, @Param(value="code") String code);

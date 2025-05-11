@@ -1,9 +1,9 @@
 package com.example.CurrencyExchange.kafka;
 
 import com.example.CurrencyExchange.dto.kafka.CurrencyCodesMessage;
+import com.example.CurrencyExchange.dto.kafka.CurrencyRecountDTO;
 import com.example.CurrencyExchange.dto.kafka.ExchangeValuesDTO;
 import com.example.CurrencyExchange.dto.kafka.ExchangedCurrencyDTO;
-import com.example.CurrencyExchange.entities.Currency;
 import com.example.CurrencyExchange.kafka.consumer.KafkaConsumerListener;
 import com.example.CurrencyExchange.kafka.producer.KafkaProducerSender;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class KafkaService {
@@ -30,6 +32,14 @@ public class KafkaService {
     private String sendToExchangeCurrencies;
     @Value("${kafka.topic.waitExchangeCurrencies}")
     private String waitExchangeCurrencies;
+    @Value("${kafka.topic.sendToCurrencyRates}")
+    private String sendToCurrencyRates;
+    @Value("${kafka.topic.waitCurrencyRates}")
+    private String waitCurrencyRates;
+    @Value("${kafka.topic.sendToRecountCurrency}")
+    private String sendToRecountCurrency;
+    @Value("${kafka.topic.waitRecountCurrency}")
+    private String waitRecountCurrency;
 
     @Autowired
     private KafkaProducerSender kafkaSender;
@@ -70,6 +80,30 @@ public class KafkaService {
 
         exchangeRate = new BigDecimal(answer);
         return exchangeRate;
+    }
+
+    public HashMap<String, BigDecimal> sendAndWaitCurrencyRates(List<String> currencyCodes, String key) {
+        sendMessage(currencyCodes, sendToCurrencyRates, key);
+        String answer = waitMessage(waitCurrencyRates, key);
+        if (answer == null) return null;
+        try {
+            return objectMapper.readValue(answer, HashMap.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public CurrencyRecountDTO sendAndWaitRecountCurrency(CurrencyRecountDTO recountDTO, String key) {
+        sendMessage(recountDTO, sendToRecountCurrency, key);
+        String answer = waitMessage(waitRecountCurrency, key);
+
+        if (answer == null) return null;
+
+        try {
+            return objectMapper.readValue(answer, CurrencyRecountDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ExchangedCurrencyDTO sendAndWaitExchangedCurrency(ExchangeValuesDTO exchangeValuesDTO, String key) {

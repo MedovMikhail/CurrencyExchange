@@ -67,6 +67,15 @@ public class StoredCurrencyController {
     }
 
     @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Пересчитать все валюты, в зависимости от их курса в кассе",
+            description = "В ответе возвращается список StoredCurrency.")
+    @PutMapping
+    public ResponseEntity<List<StoredCurrencyDTO>> recountCurrency(@RequestParam Long cashRegId) {
+        List<StoredCurrencyDTO> storedCurrenciesDTO = storedCurrencyService.recountCurrencies(cashRegId);
+        return storedCurrenciesDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(storedCurrenciesDTO);
+    }
+
+    @SecurityRequirement(name = "JWT")
     @Operation(summary = "Удалить хранимую валюту по id",
             description = "В ответе возвращается ничего.")
     @DeleteMapping("/{id}")

@@ -1,7 +1,9 @@
 package com.example.CurrencyExchange.services;
 
 import com.example.CurrencyExchange.dto.StoredCurrencyDTO;
+import com.example.CurrencyExchange.dto.kafka.CurrencyRecountDTO;
 import com.example.CurrencyExchange.entities.StoredCurrency;
+import com.example.CurrencyExchange.kafka.KafkaService;
 import com.example.CurrencyExchange.repositories.StoredCurrencyRepository;
 import com.example.CurrencyExchange.utils.mapping.StoredCurrencyMapper;
 import jakarta.persistence.NonUniqueResultException;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -22,9 +26,19 @@ public class StoredCurrencyService {
     private CurrencyService currencyService;
     @Autowired
     private CashRegisterService registerService;
+    @Autowired
+    private KafkaService kafkaService;
 
     public List<StoredCurrencyDTO> getStoredCurrencies() {
         return storedCurrencyRepository.findAllByOrderById()
+                .stream()
+                .map(storedCurrencyMapper::fromEntityToDTO)
+                .toList();
+    }
+
+    public List<StoredCurrencyDTO> getStoredCurrenciesByCashRegister(Long cashRegisterId) {
+        if (registerService.getCashRegister(cashRegisterId) == null) return null;
+        return storedCurrencyRepository.findByCashRegisterId(cashRegisterId)
                 .stream()
                 .map(storedCurrencyMapper::fromEntityToDTO)
                 .toList();
@@ -91,6 +105,23 @@ public class StoredCurrencyService {
         } catch (NonUniqueResultException e) {
             return null;
         }
+    }
+
+    public List<StoredCurrencyDTO> recountCurrencies(Long cashRegId) {
+        List<StoredCurrencyDTO> storedCurrenciesDTO = getStoredCurrenciesByCashRegister(cashRegId);
+        if (storedCurrenciesDTO == null) return null;
+        List<String> currencies = storedCurrenciesDTO
+                .stream()
+                .map(StoredCurrencyDTO::getCurrencyCode)
+                .toList();
+        String key = new Date().toString();
+        HashMap<String, BigDecimal> currencyRates = kafkaService.sendAndWaitCurrencyRates(currencies, key);
+        if (currencyRates == null || currencyRates.size() < currencies.size()) return null;
+
+        CurrencyRecountDTO currencyRecountDTO = new CurrencyRecountDTO(currencyRates, storedCurrenciesDTO);
+        kafkaService.sendAndWaitRecountCurrency(currencyRecountDTO, key);
+
+        return storedCurrenciesDTO;
     }
     
     public void deleteStoredCurrency(Long id) {
